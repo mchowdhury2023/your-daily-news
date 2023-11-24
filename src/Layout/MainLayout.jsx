@@ -5,11 +5,13 @@ import Footer from '../Pages/Home/Footer/Footer'
 
 const MainLayout = () => {
   return (
-    <div>
-        <Navbar></Navbar>
-        <Outlet></Outlet>
-        <Footer></Footer>
-    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Navbar />
+    <main style={{ flex: 1 }}>
+      <Outlet />
+    </main>
+    <Footer />
+  </div>
   )
 }
 
