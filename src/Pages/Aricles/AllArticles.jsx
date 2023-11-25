@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Grid, Card, CardMedia, CardContent, Typography, Button, Container, Paper } from '@mui/material';
 import axios from 'axios';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
+import { useNavigate } from 'react-router-dom';
 
 const AllArticles = () => {
     const [articles, setArticles] = useState([]);
     const axiosPublic = useAxiosPublic();
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchArticles = async () => {
@@ -20,6 +23,19 @@ const AllArticles = () => {
     }, []);
 
     const today = new Date().toLocaleDateString();
+
+    const handleArticleVisit = async (articleId) => {
+
+      
+
+      try {
+          await axiosPublic.patch(`/article/${articleId}/visit`);
+      } catch (error) {
+          console.error("Error incrementing article visit:", error);
+      }
+
+      navigate(`/articles/${articleId}`)
+  };
 
     return (
         <Container>
@@ -50,7 +66,7 @@ const AllArticles = () => {
                                             {article.description}
                                         </Typography>
                                     </CardContent>
-                                    <Button size="small">Details</Button>
+                                    <Button size="small" onClick={() => handleArticleVisit(article._id)}>Details</Button>
                                 </Card>
                             </Grid>
                         ))}
