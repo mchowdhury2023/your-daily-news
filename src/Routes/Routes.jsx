@@ -6,6 +6,7 @@ import MainLayout from "../Layout/MainLayout";
 import Home from "../Pages/Home/Home";
 import Login from "../Pages/Login/Login";
 import Register from "../Pages/Register/Register";
+import AddArticle from "../Pages/Aricles/AddArticle";
 
   const router = createBrowserRouter([
     {
@@ -25,6 +26,10 @@ import Register from "../Pages/Register/Register";
             element:<Register></Register>
 
         },
+        {
+          path:'/add-articles',
+          element:<AddArticle></AddArticle>
+        }
       ]
     },
   ]);
