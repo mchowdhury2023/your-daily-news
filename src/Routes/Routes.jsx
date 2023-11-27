@@ -13,6 +13,10 @@ import PageNotFound from "../Pages/PageNotFound/PageNotFound";
 import EditProfile from "../Pages/Profile/EditProfile";
 import MyArticles from "../Pages/Aricles/MyArticles";
 import PremiumArticles from "../Pages/Aricles/PremiumArticles";
+import DashboardLayout from "../Layout/DashboardLayout";
+import AllUsers from "../Dashboard/AllUsers";
+import AddPublisher from "../Dashboard/AddPublisher";
+import AdminHome from "../Dashboard/AdminHome";
 
   const router = createBrowserRouter([
     {
@@ -63,6 +67,24 @@ import PremiumArticles from "../Pages/Aricles/PremiumArticles";
         },
       ]
     },
+    {
+      path:'dashboard',
+      element:<DashboardLayout></DashboardLayout>,
+      children:[
+        {
+          path:'adminhome',
+          element:<AdminHome></AdminHome>
+        },
+        {
+          path:'allusers',
+          element:<AllUsers></AllUsers>
+        },
+        {
+          path:'addpublisher',
+          element:<AddPublisher></AddPublisher>
+        }
+      ]
+    }
   ]);
 
   export default router;

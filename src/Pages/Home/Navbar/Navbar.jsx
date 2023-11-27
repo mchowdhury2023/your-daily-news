@@ -47,7 +47,7 @@ function DrawerAppBar(props) {
     { title: 'Add Articles', path: '/add-articles' },
     { title: 'All Articles', path: '/all-articles' },
     { title: 'Subscription', path: '/subscription' },
-    { title: 'Dashboard', path: '/admin-dashboard' },
+    { title: 'Dashboard', path: '/dashboard' },
     { title: 'My Articles', path: '/my-articles' },
     { title: 'Premium Articles', path: '/premium-articles' },
     
