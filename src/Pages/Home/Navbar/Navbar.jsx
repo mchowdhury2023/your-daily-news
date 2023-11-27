@@ -27,6 +27,8 @@ function DrawerAppBar(props) {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
+  console.log(user);
+
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
@@ -85,6 +87,7 @@ function DrawerAppBar(props) {
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -119,7 +122,7 @@ function DrawerAppBar(props) {
                 <Typography variant="subtitle1" sx={{ marginRight: '10px' }}>
                   {user.displayName || "User"}
                 </Typography>
-                <IconButton onClick={() => navigate('/profile')}>
+                <IconButton onClick={() => navigate('/myprofile')}>
                   <Avatar
                     src={user.photoURL || "/static/images/avatar/1.jpg"}
                     alt={user.displayName || "User"}

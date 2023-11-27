@@ -13,12 +13,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../providers/AuthProvider";
 import { updateProfile } from "firebase/auth";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import SocialLogin from "../../components/socialLogin/SocialLogin";
 
 const Register = () => {
   const [registerError, setRegisterError] = useState("");
   const [regSuccess, setRegSuccess] = useState("");
   const { user, createUser, updateUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,46 +46,51 @@ const Register = () => {
 
   const handleRegister = (e) => {
     e.preventDefault();
-
+  
     const { name, photoURL, email, password } = formData;
-
+  
     setRegisterError("");
     setRegSuccess("");
-
+  
+    // Validate password requirements
     if (password.length < 6) {
       const errorMsg = "Password must be at least 6 characters long";
       setRegisterError(errorMsg);
-
       toast.error(errorMsg);
       clearFormFields();
       return;
     }
-
+  
     if (!/[A-Z]/.test(password)) {
       const errorMsg = "Password must contain at least one uppercase letter";
       setRegisterError(errorMsg);
-
       toast.error(errorMsg);
       clearFormFields();
       return;
     }
-
+  
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password)) {
       const errorMsg = "Password must contain at least one special character";
       setRegisterError(errorMsg);
-
       toast.error(errorMsg);
       clearFormFields();
       return;
     }
-
+  
     console.log("Form Data:", formData);
-
+  
+    // Include membership fields with null values
+    const userData = {
+      ...formData,
+      membershipStatus: null,
+      membershipTaken: null
+    };
+  
     // If validations pass, continue with user creation
     createUser(email, password)
       .then((result) => {
         console.log("Firebase User:", result.user);
-
+  
         // Use the values provided by the user for the displayName and photoURL
         return updateProfile(result.user, {
           displayName: formData.name,
@@ -90,6 +98,18 @@ const Register = () => {
         });
       })
       .then(() => {
+        // Send user data including membership fields to your backend
+        return fetch('/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Backend Response:", data);
         updateUser({
           ...user,
           displayName: name,
@@ -98,7 +118,7 @@ const Register = () => {
         const successMsg = "User created successfully";
         setRegSuccess(successMsg);
         toast.success(successMsg);
-
+  
         clearFormFields();
         navigate("/");
       })
@@ -108,6 +128,8 @@ const Register = () => {
         toast.error(error.message);
       });
   };
+  
+
 
   return (
     <Container component="main" maxWidth="xs">
@@ -186,6 +208,7 @@ const Register = () => {
           >
             Sign Up
           </Button>
+          <SocialLogin></SocialLogin>
         </form>
       </Paper>
       <ToastContainer></ToastContainer>
