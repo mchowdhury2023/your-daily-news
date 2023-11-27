@@ -11,6 +11,8 @@ import ArticleDetails from "../Pages/Aricles/ArticleDetails";
 import MyProfile from "../Pages/Profile/MyProfile";
 import PageNotFound from "../Pages/PageNotFound/PageNotFound";
 import EditProfile from "../Pages/Profile/EditProfile";
+import MyArticles from "../Pages/Aricles/MyArticles";
+import PremiumArticles from "../Pages/Aricles/PremiumArticles";
 
   const router = createBrowserRouter([
     {
@@ -37,6 +39,14 @@ import EditProfile from "../Pages/Profile/EditProfile";
         {
           path:'/articles/:id',
           element:<ArticleDetails></ArticleDetails>
+        },
+        {
+          path:'/my-articles',
+          element:<MyArticles></MyArticles>
+        },
+        {
+          path:'/premium-articles',
+          element:<PremiumArticles></PremiumArticles>
         },
         {
           path:'/myprofile',

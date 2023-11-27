@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import Select from 'react-select';
 import { TextField, Button, FormControl, InputLabel, Select as MuiSelect, MenuItem, Grid, Paper, Container } from '@mui/material';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
 import Swal from 'sweetalert2';
-
+import { AuthContext } from '../../providers/AuthProvider';
 
 const AddArticle = () => {
   const { register, handleSubmit, reset, control } = useForm();
+  const { user } = useContext(AuthContext);
 
-  // Dummy data for publishers and tags, replace later with real data
   const publishers = [{ name: 'Publisher 1', id: 'pub1' }, { name: 'Publisher 2', id: 'pub2' }];
   const tagsOptions = [{ value: 'news', label: 'News' }, { value: 'sports', label: 'Sports' }];
+  const premiumOptions = [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }];
 
   const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
   const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -19,97 +20,111 @@ const AddArticle = () => {
   const axiosPublic = useAxiosPublic();
 
   const onSubmit = async (data) => {
-      const formData = new FormData();
-      formData.append('image', data.image[0]);
+    const formData = new FormData();
+    formData.append('image', data.image[0]);
 
-      try {
-          const imageResponse = await axiosPublic.post(image_hosting_api, formData, {
-              headers: {
-                  'Content-Type': 'multipart/form-data'
-              }
-          });
-
-          if (imageResponse.data.success) {
-              const articleData = {
-                  title: data.title,
-                  image: imageResponse.data.data.display_url,
-                  publisher: data.publisher,
-                  tags: data.tags.map(tag => tag.value),
-                  description: data.description
-              };
-
-              
-              const articleResponse = await axiosPublic.post('/addArticles', articleData);
-
-              if (articleResponse.data.insertedId) {
-                  reset();
-                  Swal.fire({
-                    position: "top-end",
-                    icon: "success",
-                    title: `${data.title} is added to the News Articles.`,
-                    showConfirmButton: false,
-                    timer: 1500
-                  });
-              }
+    try {
+      const imageResponse = await axiosPublic.post(image_hosting_api, formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
           }
-      } catch (error) {
-          console.error(error);
-          // TODO: Handle error
+      });
+
+      if (imageResponse.data.success) {
+          const articleData = {
+              title: data.title,
+              image: imageResponse.data.data.display_url,
+              publisher: data.publisher,
+              tags: data.tags.map(tag => tag.value),
+              description: data.description,
+              authorName: user.displayName || 'Anonymous',
+              authorEmail: user.email,
+              authorPhotoURL: user.photoURL || 'No Photo',
+              isPremium: data.isPremium === 'yes'  // Convert to boolean or keep as string based on your backend requirement
+          };
+
+          const articleResponse = await axiosPublic.post('/addArticles', articleData);
+
+          if (articleResponse.data.insertedId) {
+              reset();
+              Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: `${data.title} is added to the News Articles.`,
+                showConfirmButton: false,
+                timer: 1500
+              });
+          }
       }
+    } catch (error) {
+      console.error(error);
+      // TODO: Handle error
+    }
   };
 
   return (
-      <Container>
-          <Grid container spacing={2} justifyContent="center" style={{ marginTop: "20px", marginBottom: "20px" }}>
-              <Grid item xs={12} md={8}>
-                  <Paper style={{ padding: "20px" }}>
-                      <h2 style={{ textAlign:'center' }}>Add Article</h2>
-                      <form onSubmit={handleSubmit(onSubmit)}>
-                          <TextField
-                              label="Title"
-                              fullWidth
-                              margin="normal"
-                              {...register('title', { required: true })}
-                          />
+    <Container>
+      <Grid container spacing={2} justifyContent="center" style={{ marginTop: "20px", marginBottom: "20px" }}>
+        <Grid item xs={12} md={8}>
+          <Paper style={{ padding: "20px" }}>
+            <h2 style={{ textAlign:'center' }}>Add Article</h2>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <TextField
+                label="Title"
+                fullWidth
+                margin="normal"
+                {...register('title', { required: true })}
+              />
 
-                          <FormControl fullWidth margin="normal">
-                              <InputLabel>Publisher</InputLabel>
-                              <MuiSelect {...register('publisher', { required: true })}>
-                                  {publishers.map((publisher) => (
-                                      <MenuItem key={publisher.id} value={publisher.id}>
-                                          {publisher.name}
-                                      </MenuItem>
-                                  ))}
-                              </MuiSelect>
-                          </FormControl>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Publisher</InputLabel>
+                <MuiSelect {...register('publisher', { required: true })}>
+                  {publishers.map((publisher) => (
+                    <MenuItem key={publisher.id} value={publisher.id}>
+                      {publisher.name}
+                    </MenuItem>
+                  ))}
+                </MuiSelect>
+              </FormControl>
 
-                          <FormControl fullWidth margin="normal">
-                              <Controller
-                                  name="tags"
-                                  control={control}
-                                  render={({ field }) => <Select {...field} options={tagsOptions} isMulti />}
-                              />
-                          </FormControl>
+              <FormControl fullWidth margin="normal">
+                <Controller
+                  name="tags"
+                  control={control}
+                  render={({ field }) => <Select {...field} options={tagsOptions} isMulti />}
+                />
+              </FormControl>
 
-                          <TextField
-                              label="Description"
-                              fullWidth
-                              margin="normal"
-                              multiline
-                              rows={4}
-                              {...register('description')}
-                          />
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Is Premium</InputLabel>
+                <MuiSelect {...register('isPremium', { required: true })}>
+                  {premiumOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </MuiSelect>
+              </FormControl>
 
-                          <input {...register('image', { required: true })} type="file" style={{ marginTop: "10px" }} />
+              <TextField
+                label="Description"
+                fullWidth
+                margin="normal"
+                multiline
+                rows={4}
+                {...register('description')}
+              />
 
-                          <Button type="submit" variant="contained" color="primary" style={{ marginTop: "20px" }}>
-                              Submit Article
-                          </Button>
-                      </form>
-                  </Paper>
-              </Grid>
-          </Grid>
-      </Container>
+              <input {...register('image', { required: true })} type="file" style={{ marginTop: "10px" }} />
+
+              <Button type="submit" variant="contained" color="primary" style={{ marginTop: "20px" }}>
+                Submit Article
+              </Button>
+            </form>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 
