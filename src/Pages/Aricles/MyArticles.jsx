@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Modal, Box, Typography } from '@mui/material';
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { AuthContext } from "../../providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const style = {
   position: 'absolute',
@@ -22,6 +24,8 @@ const MyArticles = () => {
   const [declineReason, setDeclineReason] = useState('');
   const axiosPublic = useAxiosPublic();
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     axiosPublic.get(`/myarticles?email=${user?.email}`)
       .then(res => setArticles(res.data))
@@ -29,12 +33,28 @@ const MyArticles = () => {
   }, [user?.email]);
 
   const handleDelete = (id) => {
-    // Implement the delete functionality
-    // Similar to handleDelete in ManageServices
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosPublic.delete(`/articles/${id}`)
+          .then(() => {
+            setArticles(articles.filter(article => article._id !== id));
+            Swal.fire('Deleted!', 'Your article has been deleted.', 'success');
+          })
+          .catch(error => console.error('Error deleting article:', error));
+      }
+    });
   };
 
   const handleUpdate = (id) => {
-    // Navigate to update page or implement inline update
+    navigate(`/updatearticles/${id}`);
   };
 
   const handleOpenModal = (reason) => {
@@ -69,7 +89,7 @@ const MyArticles = () => {
                     <Button onClick={() => handleOpenModal(article.declineReason)}>Reason</Button>
                   )}
                 </TableCell>
-                <TableCell>{article.isPremium ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{article.isPremium === 'no' ? 'No' : 'Yes'}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleUpdate(article._id)}>Update</Button>
                   <Button onClick={() => handleDelete(article._id)}>Delete</Button>

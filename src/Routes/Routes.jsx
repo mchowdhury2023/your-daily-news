@@ -17,6 +17,8 @@ import DashboardLayout from "../Layout/DashboardLayout";
 import AllUsers from "../Dashboard/AllUsers";
 import AddPublisher from "../Dashboard/AddPublisher";
 import AdminHome from "../Dashboard/AdminHome";
+import AllArticles from "../Dashboard/AllArticles";
+import UpdateArticle from "../Pages/Aricles/UpdateArticle";
 
   const router = createBrowserRouter([
     {
@@ -43,6 +45,12 @@ import AdminHome from "../Dashboard/AdminHome";
         {
           path:'/articles/:id',
           element:<ArticleDetails></ArticleDetails>
+        },
+        {
+          path:'/updatearticles/:id',
+          element:<UpdateArticle></UpdateArticle>,
+          loader:({params}) => fetch(`http://localhost:5000/articles/${params.id}`)
+
         },
         {
           path:'/my-articles',
@@ -82,6 +90,10 @@ import AdminHome from "../Dashboard/AdminHome";
         {
           path:'addpublisher',
           element:<AddPublisher></AddPublisher>
+        },
+        {
+          path:'allarticles',
+          element:<AllArticles></AllArticles>
         }
       ]
     }

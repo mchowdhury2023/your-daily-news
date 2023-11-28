@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import Select from 'react-select';
 import { TextField, Button, FormControl, InputLabel, Select as MuiSelect, MenuItem, Grid, Paper, Container } from '@mui/material';
@@ -9,15 +9,19 @@ import { AuthContext } from '../../providers/AuthProvider';
 const AddArticle = () => {
   const { register, handleSubmit, reset, control } = useForm();
   const { user } = useContext(AuthContext);
+  const [publishers, setPublishers] = useState([]);
+  const tagsOptions = [{ value: 'news', label: 'News' }, { value: 'sports', label: 'Sports' }, { value: 'politics', label: 'politics' }, { value: 'Tech', label: 'Tech' }];
 
-  const publishers = [{ name: 'Publisher 1', id: 'pub1' }, { name: 'Publisher 2', id: 'pub2' }];
-  const tagsOptions = [{ value: 'news', label: 'News' }, { value: 'sports', label: 'Sports' }];
-  const premiumOptions = [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }];
-
+  const axiosPublic = useAxiosPublic();
   const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
   const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
-  const axiosPublic = useAxiosPublic();
+  useEffect(() => {
+    // Fetch publishers from the API
+    axiosPublic.get('/publishers').then(response => {
+      setPublishers(response.data);
+    }).catch(error => console.error('Error fetching publishers:', error));
+  }, [axiosPublic]);
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -40,7 +44,9 @@ const AddArticle = () => {
               authorName: user.displayName || 'Anonymous',
               authorEmail: user.email,
               authorPhotoURL: user.photoURL || 'No Photo',
-              isPremium: data.isPremium === 'yes'  // Convert to boolean or keep as string based on your backend requirement
+              postedDate: new Date().toISOString(),
+              status: 'pending', 
+              isPremium: 'no' 
           };
 
           const articleResponse = await axiosPublic.post('/addArticles', articleData);
@@ -80,7 +86,7 @@ const AddArticle = () => {
                 <InputLabel>Publisher</InputLabel>
                 <MuiSelect {...register('publisher', { required: true })}>
                   {publishers.map((publisher) => (
-                    <MenuItem key={publisher.id} value={publisher.id}>
+                    <MenuItem key={publisher._id} value={publisher.name}>
                       {publisher.name}
                     </MenuItem>
                   ))}
@@ -93,17 +99,6 @@ const AddArticle = () => {
                   control={control}
                   render={({ field }) => <Select {...field} options={tagsOptions} isMulti />}
                 />
-              </FormControl>
-
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Is Premium</InputLabel>
-                <MuiSelect {...register('isPremium', { required: true })}>
-                  {premiumOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </MuiSelect>
               </FormControl>
 
               <TextField
