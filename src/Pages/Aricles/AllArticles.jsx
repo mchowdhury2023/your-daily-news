@@ -8,6 +8,8 @@ import {
   Typography,
   Select,
   MenuItem,
+  Checkbox,
+  ListItemText,
 } from "@mui/material";
 import axios from "axios";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
@@ -23,9 +25,27 @@ const AllArticles = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [publishers, setPublishers] = useState([]);
+
+  const tagsOptions = [
+    { value: "news", label: "News" },
+    { value: "sports", label: "Sports" },
+    { value: "politics", label: "Politics" },
+    { value: "Tech", label: "Tech" },
+  ];
 
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
+
+    //fetch publishers
+    useEffect(() => {
+      axiosPublic
+        .get("/publishers")
+        .then((response) => {
+          setPublishers(response.data);
+        })
+        .catch((error) => console.error("Error fetching publishers:", error));
+    }, []);
 
   useEffect(() => {
     fetchArticles();
@@ -33,32 +53,34 @@ const AllArticles = () => {
 
   const fetchArticles = async () => {
     try {
-      const response = await axiosPublic.get("/articles", {
+      const response = await axiosPublic.get("/searcharticles", {
         params: {
           status: "approved",
           search: searchTerm,
           publisher: selectedPublisher,
           tags: selectedTags.join(","),
           page,
-          pageSize
+          pageSize,
         },
       });
-      setArticles(prevArticles => [...prevArticles, ...response.data]);
+      setArticles((prevArticles) => [...prevArticles, ...response.data]);
       setHasMore(response.data.length === pageSize);
-      // setHasMore based on whether more articles are available
+     
     } catch (error) {
       console.error("Error fetching articles:", error);
     }
   };
 
+
+
   // Call fetchArticles whenever filters change
   const loadMoreArticles = () => {
-    setPage(prevPage => prevPage + 1);
-};
+    setPage((prevPage) => prevPage + 1);
+  };
 
-useEffect(() => {
+  useEffect(() => {
     fetchArticles();
-}, [page, searchTerm, selectedPublisher, selectedTags]);
+  }, [page, searchTerm, selectedPublisher, selectedTags]);
 
   const today = new Date().toLocaleDateString();
 
@@ -85,23 +107,41 @@ useEffect(() => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Select
-                        value={selectedPublisher}
-                        onChange={(e) => setSelectedPublisher(e.target.value)}
-                        fullWidth
-                        displayEmpty
-                    >
-                        <MenuItem value="">All Publishers</MenuItem>
-                        <MenuItem value="publisher1">Publisher 1</MenuItem>
-                        <MenuItem value="publisher2">Publisher 2</MenuItem>
-                       
-                    </Select>
-                    <TextField
-                        label="Tags (comma-separated)"
-                        variant="outlined"
-                        fullWidth
-                        value={selectedTags.join(',')}
-                        onChange={(e) => setSelectedTags(e.target.value.split(','))}
-                    />
+  value={selectedPublisher}
+  onChange={(e) => setSelectedPublisher(e.target.value)}
+  fullWidth
+  displayEmpty
+>
+  <MenuItem value="">All Publishers</MenuItem>
+  {publishers.map((publisher) => (
+    <MenuItem key={publisher._id} value={publisher._id}>
+      {publisher.name}
+    </MenuItem>
+  ))}
+</Select>
+
+
+          <Select
+            multiple
+            value={selectedTags}
+            onChange={(e) => setSelectedTags(e.target.value)}
+            renderValue={(selected) =>
+              selected
+                .map(
+                  (tag) =>
+                    tagsOptions.find((option) => option.value === tag).label
+                )
+                .join(", ")
+            }
+            fullWidth
+          >
+            {tagsOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <Checkbox checked={selectedTags.indexOf(option.value) > -1} />
+                <ListItemText primary={option.label} />
+              </MenuItem>
+            ))}
+          </Select>
         </Grid>
         <Grid item xs={12} md={8}>
           <InfiniteScroll
