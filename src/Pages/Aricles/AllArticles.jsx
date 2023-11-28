@@ -1,88 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, Card, CardMedia, CardContent, Typography, Button, Container, Paper } from '@mui/material';
-import axios from 'axios';
-import useAxiosPublic from '../../hooks/useAxiosPublic';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import {
+  Grid,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import axios from "axios";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import { useNavigate } from "react-router-dom";
+import ArticleCard from "./ArticleCard"; // Import ArticleCard component
+import InfiniteScroll from "react-infinite-scroll-component"; // Import InfiniteScroll
 
 const AllArticles = () => {
-    const [articles, setArticles] = useState([]);
-    const axiosPublic = useAxiosPublic();
+  const [articles, setArticles] = useState([]);
+  const [hasMore, setHasMore] = useState(true); // State for infinite scrolling
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPublisher, setSelectedPublisher] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
-    const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchArticles = async () => {
-            try {
-                const response = await axiosPublic.get('/articles'); 
-                setArticles(response.data);
-            } catch (error) {
-                console.error("Error fetching articles:", error);
-            }
-        };
-        fetchArticles();
-    }, []);
+  useEffect(() => {
+    fetchArticles();
+  }, [searchTerm]); // Add searchTerm to dependency array
 
-    const today = new Date().toLocaleDateString();
-
-    const handleArticleVisit = async (articleId) => {
-
-      
-
-      try {
-          await axiosPublic.patch(`/article/${articleId}/visit`);
-      } catch (error) {
-          console.error("Error incrementing article visit:", error);
-      }
-
-      navigate(`/articles/${articleId}`)
+  const fetchArticles = async () => {
+    try {
+      const response = await axiosPublic.get("/articles", {
+        params: {
+          status: "approved",
+          search: searchTerm,
+          publisher: selectedPublisher,
+          tags: selectedTags.join(","),
+          page,
+          pageSize
+        },
+      });
+      setArticles(prevArticles => [...prevArticles, ...response.data]);
+      setHasMore(response.data.length === pageSize);
+      // setHasMore based on whether more articles are available
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    }
   };
 
-    return (
-        <Container>
+  // Call fetchArticles whenever filters change
+  const loadMoreArticles = () => {
+    setPage(prevPage => prevPage + 1);
+};
+
+useEffect(() => {
+    fetchArticles();
+}, [page, searchTerm, selectedPublisher, selectedTags]);
+
+  const today = new Date().toLocaleDateString();
+
+  const handleArticleVisit = async (articleId) => {
+    try {
+      await axiosPublic.patch(`/article/${articleId}/visit`);
+    } catch (error) {
+      console.error("Error incrementing article visit:", error);
+    }
+
+    navigate(`/articles/${articleId}`);
+  };
+
+  return (
+    <Container>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={2}>
+          {/* Add publisher and tag filters here */}
+          <TextField
+            label="Search Articles"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Select
+                        value={selectedPublisher}
+                        onChange={(e) => setSelectedPublisher(e.target.value)}
+                        fullWidth
+                        displayEmpty
+                    >
+                        <MenuItem value="">All Publishers</MenuItem>
+                        <MenuItem value="publisher1">Publisher 1</MenuItem>
+                        <MenuItem value="publisher2">Publisher 2</MenuItem>
+                       
+                    </Select>
+                    <TextField
+                        label="Tags (comma-separated)"
+                        variant="outlined"
+                        fullWidth
+                        value={selectedTags.join(',')}
+                        onChange={(e) => setSelectedTags(e.target.value.split(','))}
+                    />
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <InfiniteScroll
+            dataLength={articles.length}
+            next={loadMoreArticles}
+            hasMore={hasMore}
+            loader={<h4>Loading...</h4>}
+            endMessage={
+              <p style={{ textAlign: "center" }}>
+                <b>You have seen all articles</b>
+              </p>
+            }
+          >
             <Grid container spacing={2}>
-                <Grid item xs={12} md={2}>
-                    {/* Category selection options */}
-                    <Paper style={{ padding: '10px' }}>
-                        <Typography variant="h6">Categories</Typography>
-                        {/* Categories list here */}
-                    </Paper>
-                </Grid>
-                <Grid item xs={12} md={8}>
-                    <Grid container spacing={2}>
-                        {articles.map(article => (
-                            <Grid item xs={12} md={4} key={article._id}>
-                                <Card>
-                                    <CardMedia
-                                        component="img"
-                                        height="140"
-                                        image={article.image}
-                                        alt={article.title}
-                                    />
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h5" component="div">
-                                            {article.title}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {article.description}
-                                        </Typography>
-                                    </CardContent>
-                                    <Button size="small" onClick={() => handleArticleVisit(article._id)}>Details</Button>
-                                </Card>
-                            </Grid>
-                        ))}
-                    </Grid>
-                </Grid>
-                <Grid item xs={12} md={2}>
-                    {/* Right column for today's date and other items */}
-                    <Paper style={{ padding: '10px' }}>
-                        <Typography variant="h6">Today's Date</Typography>
-                        <Typography>{today}</Typography>
-                        {/* Additional items here */}
-                    </Paper>
-                </Grid>
+              {articles.map((article) => (
+                <ArticleCard
+                  key={article._id}
+                  article={article}
+                  onVisit={() => handleArticleVisit(article._id)}
+                />
+              ))}
             </Grid>
-        </Container>
-    );
+          </InfiniteScroll>
+        </Grid>
+        <Grid item xs={12} md={2}>
+          <Paper style={{ padding: "10px" }}>
+            <Typography variant="h6">Today's Date</Typography>
+            <Typography>{today}</Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
+  );
 };
 
 export default AllArticles;

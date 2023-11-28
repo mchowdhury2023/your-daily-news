@@ -19,6 +19,7 @@ import AddPublisher from "../Dashboard/AddPublisher";
 import AdminHome from "../Dashboard/AdminHome";
 import UpdateArticle from "../Pages/Aricles/UpdateArticle";
 import AdminAllArticles from "../Dashboard/AdminAllArticles";
+import AllArticles from "../Pages/Aricles/AllArticles";
 
   const router = createBrowserRouter([
     {
@@ -55,6 +56,11 @@ import AdminAllArticles from "../Dashboard/AdminAllArticles";
         {
           path:'/my-articles',
           element:<MyArticles></MyArticles>
+        },
+        {
+          path:'all-articles',
+          element:<AllArticles></AllArticles>
+
         },
         {
           path:'/premium-articles',
