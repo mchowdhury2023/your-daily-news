@@ -14,9 +14,23 @@ import {
   Alert,
   Select,
   MenuItem,
+  Box,
+  Typography,
 } from "@mui/material";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../hooks/useAxiosPublic";
+
+const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
 
 const AdminAllArticles = () => {
   const axiosPublic = useAxiosPublic();
@@ -39,27 +53,6 @@ const AdminAllArticles = () => {
     getArticles();
   }, []);
 
-  const handleAction = async (articleId, actionType, reason = "") => {
-    try {
-      const response = await axiosPublic.patch(`/articles/${articleId}`, {
-        actionType,
-        reason,
-      });
-      if (response.data.modifiedCount > 0) {
-        setOpenSnackbar(true);
-        setSnackbarMessage(`Article ${actionType} successfully!`);
-        setArticles(
-          articles.map((article) =>
-            article._id === articleId
-              ? { ...article, status: actionType }
-              : article
-          )
-        );
-      }
-    } catch (error) {
-      console.error(`Error on ${actionType} article:`, error);
-    }
-  };
   const updateArticle = async (articleId, updatedFields) => {
     try {
       const response = await axiosPublic.patch(
@@ -83,7 +76,17 @@ const AdminAllArticles = () => {
   };
 
   const handleStatusChange = (articleId, newStatus) => {
-    updateArticle(articleId, { status: newStatus });
+    if (newStatus === "declined") {
+      setCurrentArticleId(articleId);
+      setOpenDeclineModal(true);
+    } else {
+      updateArticle(articleId, { status: newStatus });
+    }
+  };
+
+  const handleDeclineSubmit = () => {
+    updateArticle(currentArticleId, { status: "declined", declineReason });
+    setOpenDeclineModal(false);
   };
 
   const handleMakePremium = async (articleId, isCurrentlyPremium) => {
@@ -107,25 +110,25 @@ const AdminAllArticles = () => {
       console.error("Error updating article's premium status:", error);
     }
   };
-  
 
   const handleDelete = (id) => {
     Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosPublic.delete(`/articles/${id}`)
+        axiosPublic
+          .delete(`/articles/${id}`)
           .then(() => {
-            setArticles(articles.filter(article => article._id !== id));
-            Swal.fire('Deleted!', 'Your article has been deleted.', 'success');
+            setArticles(articles.filter((article) => article._id !== id));
+            Swal.fire("Deleted!", "Your article has been deleted.", "success");
           })
-          .catch(error => console.error('Error deleting article:', error));
+          .catch((error) => console.error("Error deleting article:", error));
       }
     });
   };
@@ -142,26 +145,84 @@ const AdminAllArticles = () => {
       <h2>All Articles</h2>
       <TableContainer component={Paper}>
         <Table>
-        <TableHead style={{ backgroundColor: '#e0e0e0' }}>
-    <TableRow>
-        <TableCell style={{ fontWeight: 'bold', borderRight: '1px solid #ccc', textAlign:'center' }}>Title</TableCell>
-        <TableCell style={{ fontWeight: 'bold', borderRight: '1px solid #ccc', textAlign:'center' }}>Author Name</TableCell>
-        <TableCell style={{ fontWeight: 'bold', borderRight: '1px solid #ccc', textAlign:'center' }}>Author Email</TableCell>
-        <TableCell style={{ fontWeight: 'bold', borderRight: '1px solid #ccc', textAlign:'center' }}>Posted Date</TableCell>
-        <TableCell style={{ fontWeight: 'bold', borderRight: '1px solid #ccc', textAlign:'center' }}>Status</TableCell>
-        <TableCell style={{ fontWeight: 'bold', borderRight: '1px solid #ccc', textAlign:'center' }}>Publisher</TableCell>
-        <TableCell style={{ fontWeight: 'bold', textAlign:'center' }}>Actions</TableCell>
-    </TableRow>
-</TableHead>
+          <TableHead style={{ backgroundColor: "#e0e0e0" }}>
+            <TableRow>
+              <TableCell
+                style={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
+                Title
+              </TableCell>
+              <TableCell
+                style={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
+                Author Name
+              </TableCell>
+              <TableCell
+                style={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
+                Author Email
+              </TableCell>
+              <TableCell
+                style={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
+                Posted Date
+              </TableCell>
+              <TableCell
+                style={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
+                Status
+              </TableCell>
+              <TableCell
+                style={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
+                Publisher
+              </TableCell>
+              <TableCell style={{ fontWeight: "bold", textAlign: "center" }}>
+                Actions
+              </TableCell>
+            </TableRow>
+          </TableHead>
 
           <TableBody>
             {articles.map((article) => (
               <TableRow key={article._id}>
-                  <TableCell style={{ borderRight: '1px solid #eee' }}>{article.title}</TableCell>
-            <TableCell style={{ borderRight: '1px solid #eee' }}>{article.authorName}</TableCell>
-            <TableCell style={{ borderRight: '1px solid #eee' }}>{article.authorEmail}</TableCell>
-            <TableCell style={{ borderRight: '1px solid #eee' }}>{new Date(article.postedDate).toLocaleDateString()}</TableCell>
-            <TableCell style={{ borderRight: '1px solid #eee' }}>
+                <TableCell style={{ borderRight: "1px solid #eee" }}>
+                  {article.title}
+                </TableCell>
+                <TableCell style={{ borderRight: "1px solid #eee" }}>
+                  {article.authorName}
+                </TableCell>
+                <TableCell style={{ borderRight: "1px solid #eee" }}>
+                  {article.authorEmail}
+                </TableCell>
+                <TableCell style={{ borderRight: "1px solid #eee" }}>
+                  {new Date(article.postedDate).toLocaleDateString()}
+                </TableCell>
+                <TableCell style={{ borderRight: "1px solid #eee" }}>
                   <Select
                     value={article.status}
                     onChange={(e) =>
@@ -173,35 +234,88 @@ const AdminAllArticles = () => {
                     <MenuItem value="declined">Decline</MenuItem>
                   </Select>
                 </TableCell>
-                <TableCell style={{ borderRight: '1px solid #eee' }}>{article.publisher}</TableCell>
+                <TableCell style={{ borderRight: "1px solid #eee" }}>
+                  {article.publisher}
+                </TableCell>
                 <TableCell>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Button 
-                        onClick={() => handleMakePremium(article._id, article.isPremium)}
-                        color={article.isPremium === 'Yes' ? "secondary" : "primary"}
-                        variant="contained"
-                        size="small"
-                        style={{ marginRight: '10px' }}
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Button
+                      onClick={() =>
+                        handleMakePremium(article._id, article.isPremium)
+                      }
+                      color={
+                        article.isPremium === "Yes" ? "secondary" : "primary"
+                      }
+                      variant="contained"
+                      size="small"
+                      style={{ marginRight: "10px" }}
                     >
-                        {article.isPremium === 'Yes' ? 'Cancel Premium' : 'Make Premium'}
+                      {article.isPremium === "Yes"
+                        ? "Cancel Premium"
+                        : "Make Premium"}
                     </Button>
-                    <Button 
-                        onClick={() => handleDelete(article._id)}
-                        color="error"
-                        variant="contained"
-                        size="small"
+                    <Button
+                      onClick={() => handleDelete(article._id)}
+                      color="error"
+                      variant="contained"
+                      size="small"
                     >
-                        Delete
+                      Delete
                     </Button>
-                </div>
-            </TableCell>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* Modal and Snackbar components remain the same */}
+      <Modal
+        open={openDeclineModal}
+        onClose={() => setOpenDeclineModal(false)}
+        aria-labelledby="decline-reason-modal-title"
+        aria-describedby="decline-reason-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography
+            id="decline-reason-modal-title"
+            variant="h6"
+            component="h2"
+          >
+            Enter Decline Reason
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            value={declineReason}
+            onChange={(e) => setDeclineReason(e.target.value)}
+            margin="normal"
+          />
+          <Button
+            onClick={handleDeclineSubmit}
+            color="primary"
+            variant="contained"
+            style={{ marginTop: "10px" }}
+          >
+            Submit Reason
+          </Button>
+        </Box>
+      </Modal>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

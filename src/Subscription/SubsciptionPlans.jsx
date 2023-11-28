@@ -1,8 +1,10 @@
 // SubscriptionPlans.js
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Container, Grid } from '@mui/material';
 import SubscriptionCard from './SubscriptionCard';
+import { AuthContext } from '../providers/AuthProvider';
+import useAxiosPublic from '../hooks/useAxiosPublic';
 
 const subscriptionPlans = [
   {
@@ -34,13 +36,28 @@ const subscriptionPlans = [
   },
 ];
 
-const SubscriptionPlans = () => {
+  const SubscriptionPlans = () => {
+    const { user } = useContext(AuthContext);
+    const axiosPublic = useAxiosPublic();
+  
+    const updateUserMembership = async (status, taken) => {
+      axiosPublic.patch(`/updatesubscription/${user.email}`, { membershipStatus: status, membershipTaken: taken })
+        .then(response => {
+          // Handle successful update
+          console.log('Membership updated:', response.data);
+        })
+        .catch(error => {
+          // Handle error
+          console.error('Error updating membership:', error);
+        });
+    };
+
   return (
     <Container>
     <Grid container justifyContent="center" alignItems="stretch" spacing={4} sx={{ py: 4 }}>
       {subscriptionPlans.map((plan, index) => (
         <Grid item key={index} xs={12} sm={6} md={4}>
-          <SubscriptionCard plan={plan} index={index} />
+          <SubscriptionCard plan={plan} index={index} updateUserMembership={updateUserMembership} />
         </Grid>
       ))}
     </Grid>

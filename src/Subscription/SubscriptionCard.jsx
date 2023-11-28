@@ -3,8 +3,20 @@ import { Card, CardContent, Typography, Button, Box } from '@mui/material';
 
 const borderColors = ['#778899','#FFA07A', '#20B2AA'];
 
-const SubscriptionCard = ({ plan, index }) => {
-  const borderColor = borderColors[index % borderColors.length]; // Cycle through border colors
+const SubscriptionCard = ({ plan, index, updateUserMembership  }) => {
+  const borderColor = borderColors[index % borderColors.length]; 
+
+  const handleSubscription = () => {
+    // Example durations for different plans
+    const durations = {
+      'Premium Individual': '1 minute',
+      'Premium Duo': '5 minutes',
+      'Premium Family': '8 minutes'
+    };
+
+    const selectedDuration = durations[plan.name];
+    updateUserMembership( 'premium', selectedDuration);
+  };
 
   return (
     <Card raised sx={{ 
@@ -35,7 +47,7 @@ const SubscriptionCard = ({ plan, index }) => {
         </Box>
       </CardContent>
       <Box sx={{ display: 'flex', justifyContent: 'center', paddingBottom: 2 }}>
-        <Button variant="contained" color="primary">
+        <Button variant="contained" color="primary" onClick={handleSubscription}>
           Get Subscription
         </Button>
       </Box>
