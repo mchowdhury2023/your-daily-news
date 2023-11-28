@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Link } from '@mui/material';
+import { Box, Container, Typography, Grid, Button } from '@mui/material';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 // Replace this with your actual logo import
 // import logo from '../../assets/your-daily-news-logo.png'; 
@@ -37,9 +38,10 @@ const Footer = () => {
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
               <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><FaLinkedin /></a>
             </Box>
-            <Link
-              href="#"
-              underline="hover"
+            <Button
+              color="inherit"
+              component={Link}
+              to="/testimonials"
               sx={{
                 mt: 1,
                 backgroundColor: 'lightblue',
@@ -47,13 +49,10 @@ const Footer = () => {
                   backgroundColor: 'blue',
                 },
                 color: 'white',
-                padding: '6px 12px',
-                borderRadius: '4px',
-                display: 'inline-block'
               }}
             >
               Feedback
-            </Link>
+            </Button>
           </Grid>
         </Grid>
         <Typography variant="caption" display="block" align="center" sx={{ mt: 2 }}>

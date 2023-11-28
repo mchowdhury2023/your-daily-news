@@ -51,7 +51,7 @@ const AllArticles = () => {
     fetchArticles();
   }, [searchTerm]); // Add searchTerm to dependency array
 
-  const fetchArticles = async () => {
+  const fetchArticles = async (reset = false) => {
     try {
       const response = await axiosPublic.get("/searcharticles", {
         params: {
@@ -59,13 +59,18 @@ const AllArticles = () => {
           search: searchTerm,
           publisher: selectedPublisher,
           tags: selectedTags.join(","),
-          page,
+          page: reset ? 0 : page,
           pageSize,
         },
       });
-      setArticles((prevArticles) => [...prevArticles, ...response.data]);
+      if (reset) {
+        setArticles(response.data); // Reset the articles list when filters are applied
+        setPage(1); // Reset to the second page (since first page data is already loaded)
+      } else {
+        setArticles(prevArticles => [...prevArticles, ...response.data]); // Append new articles
+        setPage(prevPage => prevPage + 1); // Increment page count
+      }
       setHasMore(response.data.length === pageSize);
-     
     } catch (error) {
       console.error("Error fetching articles:", error);
     }
@@ -79,7 +84,7 @@ const AllArticles = () => {
   };
 
   useEffect(() => {
-    fetchArticles();
+    fetchArticles(true);
   }, [page, searchTerm, selectedPublisher, selectedTags]);
 
   const today = new Date().toLocaleDateString();

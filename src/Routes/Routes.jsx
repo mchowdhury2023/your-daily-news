@@ -20,6 +20,8 @@ import AdminHome from "../Dashboard/AdminHome";
 import UpdateArticle from "../Pages/Aricles/UpdateArticle";
 import AdminAllArticles from "../Dashboard/AdminAllArticles";
 import AllArticles from "../Pages/Aricles/AllArticles";
+import TestimonialForm from "../Pages/Testimonial/TestimonialForm";
+import SubscriptionPlans from "../Subscription/SubsciptionPlans";
 
   const router = createBrowserRouter([
     {
@@ -67,6 +69,10 @@ import AllArticles from "../Pages/Aricles/AllArticles";
           element:<PremiumArticles></PremiumArticles>
         },
         {
+          path:'/subscription',
+          element:<SubscriptionPlans></SubscriptionPlans>
+        },
+        {
           path:'/myprofile',
           element:<MyProfile></MyProfile>,
           //loader:({params}) => fetch(`http://localhost:5000/users/${params.id}`)
@@ -75,6 +81,11 @@ import AllArticles from "../Pages/Aricles/AllArticles";
           path:'/editprofile',
           element:<EditProfile></EditProfile>
         },
+        {
+          path:'/testimonials',
+          element:<TestimonialForm></TestimonialForm>
+        },
+       
         {
           path: "*",
           element: <PageNotFound></PageNotFound>,
