@@ -17,8 +17,8 @@ import DashboardLayout from "../Layout/DashboardLayout";
 import AllUsers from "../Dashboard/AllUsers";
 import AddPublisher from "../Dashboard/AddPublisher";
 import AdminHome from "../Dashboard/AdminHome";
-import AllArticles from "../Dashboard/AllArticles";
 import UpdateArticle from "../Pages/Aricles/UpdateArticle";
+import AdminAllArticles from "../Dashboard/AdminAllArticles";
 
   const router = createBrowserRouter([
     {
@@ -93,7 +93,7 @@ import UpdateArticle from "../Pages/Aricles/UpdateArticle";
         },
         {
           path:'allarticles',
-          element:<AllArticles></AllArticles>
+          element:<AdminAllArticles></AdminAllArticles>
         }
       ]
     }
