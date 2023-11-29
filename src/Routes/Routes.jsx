@@ -22,6 +22,8 @@ import AdminAllArticles from "../Dashboard/AdminAllArticles";
 import AllArticles from "../Pages/Aricles/AllArticles";
 import TestimonialForm from "../Pages/Testimonial/TestimonialForm";
 import SubscriptionPlans from "../Subscription/SubsciptionPlans";
+import Payment from "../Pages/Payment/Payment";
+
 
   const router = createBrowserRouter([
     {
@@ -84,6 +86,10 @@ import SubscriptionPlans from "../Subscription/SubsciptionPlans";
         {
           path:'/testimonials',
           element:<TestimonialForm></TestimonialForm>
+        },
+        {
+          path:'/payment',
+          element:<Payment></Payment>
         },
        
         {

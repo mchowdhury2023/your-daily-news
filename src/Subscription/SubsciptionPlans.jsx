@@ -7,6 +7,7 @@ import { AuthContext } from '../providers/AuthProvider';
 import useAxiosPublic from '../hooks/useAxiosPublic';
 import Swal from 'sweetalert2';
 import BannerSlider from './BannerSlider';
+import { useNavigate } from 'react-router-dom';
 
 const subscriptionPlans = [
   {
@@ -41,6 +42,7 @@ const subscriptionPlans = [
   const SubscriptionPlans = () => {
     const { user } = useContext(AuthContext);
     const axiosPublic = useAxiosPublic();
+    const navigate = useNavigate();
 
   
     const updateUserMembership = async (status, taken) => {
@@ -77,7 +79,14 @@ const subscriptionPlans = [
   
     const handleGetSubscription = () => {
       updateUserMembership('premium', selectedDuration);
+      const prices = { 60: 9.99, 7200: 12.99, 14400: 14.99 };
+    const price = prices[selectedDuration];
+
+    
+    navigate('/payment', { state: { price } });
     };
+
+    
 
   return (
     <Container>

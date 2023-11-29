@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import { AuthContext } from '../../../providers/AuthProvider';
+import logo from '../../../assets/logo1.png';
 
 const drawerWidth = 240;
 
@@ -69,6 +70,7 @@ function DrawerAppBar(props) {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+      
       <Typography variant="h6" sx={{ my: 2 }}>
         DailyNews
       </Typography>
@@ -102,6 +104,7 @@ function DrawerAppBar(props) {
           >
             <MenuIcon />
           </IconButton>
+          <img src={logo} alt="DailyNews Logo" style={{ marginRight: 10, height: '60px' }} />
           <Typography
             variant="h6"
             component="div"
