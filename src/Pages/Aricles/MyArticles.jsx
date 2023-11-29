@@ -16,6 +16,7 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { AuthContext } from "../../providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useQuery } from '@tanstack/react-query';
 
 const style = {
   position: "absolute",
@@ -31,19 +32,26 @@ const style = {
 
 const MyArticles = () => {
   const { user } = useContext(AuthContext);
-  const [articles, setArticles] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [declineReason, setDeclineReason] = useState("");
   const axiosPublic = useAxiosPublic();
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axiosPublic
-      .get(`/myarticles?email=${user?.email}`)
-      .then((res) => setArticles(res.data))
-      .catch((err) => console.error(err));
-  }, [user?.email]);
+  const { data: articles, error, isLoading } = useQuery({
+    queryKey: ['myarticles', user?.email], 
+    queryFn: () => axiosPublic.get(`/myarticles?email=${user?.email}`).then(res => res.data),
+    enabled: !!user?.email, 
+});
+
+if (isLoading) {
+    return <div>Loading articles...</div>;
+}
+
+if (error) {
+    console.error('Error fetching articles:', error);
+    return <div>Error loading articles.</div>;
+}
 
   const handleDelete = (id) => {
     Swal.fire({

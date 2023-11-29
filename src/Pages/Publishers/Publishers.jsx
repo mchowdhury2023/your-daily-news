@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Paper, Typography, Box } from '@mui/material';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
+import { useQuery } from '@tanstack/react-query';
 
 
 const Publishers = () => {
-  const [publishers, setPublishers] = useState([]);
   const axiosPublic = useAxiosPublic();
 
-  useEffect(() => {
-    // Fetch publishers from the API
-    axiosPublic.get('/publishers').then(response => {
-      setPublishers(response.data);
-    }).catch(error => console.error('Error fetching publishers:', error));
-  }, [axiosPublic]);
+  const { data: publishers, error, isLoading } = useQuery({
+    queryKey: ['publishers'],
+    queryFn: () => axiosPublic.get('/publishers').then(res => res.data),
+    // You can add additional options here if needed
+});
+
+if (isLoading) {
+    return <div>Loading publishers...</div>;
+}
+
+if (error) {
+    console.error('Error fetching publishers:', error);
+    return <div>Error loading publishers.</div>;
+}
 
   const boxStyle = {
     display: 'flex',

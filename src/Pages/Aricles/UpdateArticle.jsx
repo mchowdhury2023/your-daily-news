@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useLoaderData, useParams } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
 import {
@@ -17,12 +17,14 @@ import {
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../providers/AuthProvider";
+import { useQuery } from "@tanstack/react-query";
 
 const UpdateArticle = () => {
   const { id } = useParams();
   const { register, handleSubmit, reset, control, setValue } = useForm();
   const { user } = useContext(AuthContext);
-  const [publishers, setPublishers] = useState([]);
+  //const [article, setArticle] =useState();
+
   const tagsOptions = [
     { value: "news", label: "News" },
     { value: "sports", label: "Sports" },
@@ -30,46 +32,50 @@ const UpdateArticle = () => {
     { value: "tech", label: "Tech" },
   ];
   const axiosPublic = useAxiosPublic();
-  const loadedArticle = useLoaderData();
-  const [article, setArticle] = useState(null);
+
 
   const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
   const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
-  useEffect(() => {
-    let articleData;
+  const { data: publishers, isLoading, error } = useQuery({
+    queryKey: ['publishers'],
+    queryFn: () => axiosPublic.get('/publishers').then(res => res.data),
+  });
 
-    axiosPublic
-      .get("/publishers")
-      .then((response) => {
-        setPublishers(response.data);
+  if (isLoading) {
+    return <div>Loading articles...</div>;
+}
 
-        if (articleData) {
-          const publisherName = response.data.find(
-            (p) => p._id === articleData.publisher
-          )?.name;
-          setValue("publisher", publisherName || "");
-        }
-      })
-      .catch((error) => console.error("Error fetching publishers:", error));
+if (error) {
+    console.error('Error fetching articles:', error);
+    return <div>Error loading articles.</div>;
+  }
 
-    axiosPublic
-      .get(`/articles/${id}`)
-      .then((response) => {
-        setArticle(response.data);
-        const articleData = response.data;
-        setArticle(articleData);
+// Query for fetching a specific article
+const { data: articleData, isSuccess } = useQuery({
+  queryKey: ['article', id],
+  queryFn: () => axiosPublic.get(`/articles/${id}`).then(res => res.data),
+});
 
-        setValue("title", articleData.title);
-        setValue("publisher", articleData.publisher);
-        setValue(
-          "tags",
-          articleData.tags.map((tag) => ({ value: tag, label: tag }))
-        );
-        setValue("description", articleData.description);
-      })
-      .catch((error) => console.error("Error fetching article:", error));
-  }, [id, axiosPublic, setValue]);
+// Set form values when articleData is successfully fetched
+useEffect(() => {
+if (isSuccess && articleData) {
+  setValue("title", articleData.title);
+  setValue("publisher", articleData.publisher);
+  setValue(
+    "tags",
+    articleData.tags.map((tag) => ({ value: tag, label: tag }))
+  );
+  setValue("description", articleData.description);
+
+  if (publishers) {
+    const publisherName = publishers.find(
+      (p) => p._id === articleData.publisher
+    )?.name;
+    setValue("publisher", publisherName || "");
+  }
+}
+}, [articleData, publishers, setValue, isSuccess]);
 
   const onSubmit = async (data) => {
     let imageUrl = article.image;
@@ -137,32 +143,31 @@ const UpdateArticle = () => {
             <h2 style={{ textAlign: "center" }}>Update Article</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
               <FormControl fullWidth margin="normal">
-                <InputLabel shrink={!!article?.title}>Title</InputLabel>
+                <InputLabel shrink={!!articleData?.title}>Title</InputLabel>
                 <TextField
                   fullWidth
                   margin="normal"
                   {...register("title", { required: true })}
-                  defaultValue={article?.title}
+                  defaultValue={articleData?.title}
                 />
               </FormControl>
-
               <FormControl fullWidth margin="normal">
-                <InputLabel>Publisher</InputLabel>
-                <Controller
-                  name="publisher"
-                  control={control}
-                  defaultValue="" // Set a default value
-                  render={({ field }) => (
-                    <MuiSelect {...field}>
-                      {publishers.map((publisher) => (
-                        <MenuItem key={publisher._id} value={publisher.name}>
-                          {publisher.name}
-                        </MenuItem>
-                      ))}
-                    </MuiSelect>
-                  )}
-                />
-              </FormControl>
+  <InputLabel>Publisher</InputLabel>
+  <Controller
+    name="publisher"
+    control={control}
+    defaultValue="" // Set a default value
+    render={({ field }) => (
+      <MuiSelect {...field}>
+        {publishers ? publishers.map((publisher) => (
+          <MenuItem key={publisher._id} value={publisher.name}>
+            {publisher.name}
+          </MenuItem>
+        )) : <MenuItem>Loading...</MenuItem>}
+      </MuiSelect>
+    )}
+  />
+</FormControl>
 
               <FormControl fullWidth margin="normal">
                 <Controller
@@ -174,7 +179,7 @@ const UpdateArticle = () => {
                 />
               </FormControl>
               <FormControl fullWidth margin="normal">
-                <InputLabel shrink={!!article?.description}>
+                <InputLabel shrink={!!articleData?.description}>
                   Description
                 </InputLabel>
                 <TextField
@@ -183,14 +188,14 @@ const UpdateArticle = () => {
                   multiline
                   rows={4}
                   {...register("description")}
-                  defaultValue={article?.description}
+                  defaultValue={articleData?.description}
                 />
               </FormControl>
 
               <Typography variant="body1" gutterBottom>
                 Current Image:{" "}
-                <a href={article?.image} target="_blank">
-                  {article?.image}
+                <a href={articleData?.image} target="_blank">
+                  {articleData?.image}
                 </a>
               </Typography>
               <input

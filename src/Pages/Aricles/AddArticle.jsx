@@ -5,23 +5,31 @@ import { TextField, Button, FormControl, InputLabel, Select as MuiSelect, MenuIt
 import useAxiosPublic from '../../hooks/useAxiosPublic';
 import Swal from 'sweetalert2';
 import { AuthContext } from '../../providers/AuthProvider';
+import { useQuery } from '@tanstack/react-query';
 
 const AddArticle = () => {
   const { register, handleSubmit, reset, control } = useForm();
   const { user } = useContext(AuthContext);
-  const [publishers, setPublishers] = useState([]);
   const tagsOptions = [{ value: 'news', label: 'News' }, { value: 'sports', label: 'Sports' }, { value: 'politics', label: 'politics' }, { value: 'Tech', label: 'Tech' }];
 
   const axiosPublic = useAxiosPublic();
   const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
   const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
-  useEffect(() => {
-    // Fetch publishers from the API
-    axiosPublic.get('/publishers').then(response => {
-      setPublishers(response.data);
-    }).catch(error => console.error('Error fetching publishers:', error));
-  }, [axiosPublic]);
+  const { data: publishers, error, isLoading } = useQuery({
+    queryKey: ['publishers'],
+    queryFn: () => axiosPublic.get('/publishers').then(res => res.data),
+    
+});
+
+if (isLoading) {
+    return <div>Loading publishers...</div>;
+}
+
+if (error) {
+    console.error('Error fetching publishers:', error);
+    return <div>Error loading publishers.</div>;
+}
 
   const onSubmit = async (data) => {
     const formData = new FormData();

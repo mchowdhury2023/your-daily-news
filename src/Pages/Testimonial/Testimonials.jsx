@@ -2,25 +2,29 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Box, Grid, Typography, Card, CardContent } from "@mui/material";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const Testimonials = () => {
-  const [testimonials, setTestimonials] = useState([]);
-  const axiosPublic = useAxiosPublic();
 
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const response = await axiosPublic.get(
-          "/testimonials"
-        );
-        setTestimonials(response.data);
-      } catch (error) {
-        console.error("Error fetching testimonials:", error);
-      }
-    };
+  const axiosSecure = useAxiosSecure();
 
-    fetchTestimonials();
-  }, []);
+  const { data: testimonials, error, isLoading } = useQuery({
+    queryKey: ['testimonials'],
+    queryFn: () => axiosSecure.get("/testimonials").then(res => res.data),
+    
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    console.error("Error fetching testimonials:", error);
+    return <div>Error loading testimonials.</div>;
+  }
+
+
 
   return (
     <Box sx={{ flexGrow: 1, py: 4, px: { xs: 2, sm: 3, md: 4 } }}>

@@ -19,6 +19,8 @@ import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import { AuthContext } from '../../../providers/AuthProvider';
 import logo from '../../../assets/logo1.png';
+import useAuth from '../../../hooks/useAuth';
+import useAdmin from '../../../hooks/useAdmin';
 
 const drawerWidth = 240;
 
@@ -28,7 +30,9 @@ function DrawerAppBar(props) {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  console.log(user);
+    const [isAdmin] = useAdmin();
+
+  //console.log(user);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -43,25 +47,33 @@ function DrawerAppBar(props) {
     }
   };
 
-  let navItems = [
-    { title: 'Home', path: '/' },
-    { title: 'All Articles', path: '/all-articles' }];
-  
+  const getNavItems = () => {
+    let navItems = [
+        { title: 'Home', path: '/' },
+        { title: 'All Articles', path: '/all-articles' }
+    ];
+
     if (user) {
-      // Add these items only if the user is logged in
-      navItems = [
-        ...navItems,
-        { title: 'Add Articles', path: '/add-articles' },
-        { title: 'Subscription', path: '/subscription' },
-        { title: 'Dashboard', path: '/dashboard' },
-        { title: 'My Articles', path: '/my-articles' },
-        { title: 'Premium Articles', path: '/premium-articles' },
-        { title: 'Logout', path: '/logout' }
-      ];
+        navItems = [
+            ...navItems,
+            { title: 'Add Articles', path: '/add-articles' },
+            { title: 'Subscription', path: '/subscription' },
+            { title: 'My Articles', path: '/my-articles' },
+            { title: 'Premium Articles', path: '/premium-articles' },
+            { title: 'Logout', path: '/logout' }
+        ];
+
+        if (isAdmin) {
+            navItems.push({ title: 'Dashboard', path: '/dashboard' });
+        }
     } else {
-      
-      navItems.push({ title: 'Login/Register', path: '/login' });
+        navItems.push({ title: 'Login/Register', path: '/login' });
     }
+
+    return navItems;
+};
+
+const navItems = getNavItems();
   
 
   const handleNavItemClick = (item) => {

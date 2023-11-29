@@ -1,22 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardMedia, CardContent, Typography, Button, Grid, Container } from '@mui/material';
 import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const PremiumArticles = () => {
-  const [articles, setArticles] = useState([]);
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    axiosPublic.get('/articles')
-      .then(res => {
-        const premiumArticles = res.data.filter(article => article.isPremium);
-        setArticles(premiumArticles);
-      })
-      .catch(err => console.error(err));
-  }, []);
+  const { data: articles, error, isLoading } = useQuery({
+    queryKey: ['premiumArticles'],
+    queryFn: () => axiosSecure.get('/articles').then(res => 
+        res.data.filter(article => article.isPremium === 'Yes')
+    ),
+    // You can add additional options here if needed
+});
+
+if (isLoading) {
+    return <div>Loading articles...</div>;
+}
+
+if (error) {
+    console.error('Error fetching articles:', error);
+    return <div>Error loading articles.</div>;
+}
 
   const handleDetails = (articleId) => {
-    // Implement navigation or action for the Details button
+    navigate(`/articles/${articleId}`);
   };
 
   return (

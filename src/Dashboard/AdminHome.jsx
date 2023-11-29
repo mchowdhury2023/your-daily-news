@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Chart } from 'react-google-charts';
 import useAxiosPublic from '../hooks/useAxiosPublic';
+import { useQuery } from '@tanstack/react-query';
 
 const AdminHome = () => {
-    const [chartData, setChartData] = useState([]);
+
     const axiosPublic = useAxiosPublic();
 
-    useEffect(() => {
-      // Fetch articles and process data
-      axiosPublic.get('/articles') 
-        .then(response => {
-          const data = processArticleData(response.data);
-          setChartData(data);
-        })
-        .catch(error => console.error(error));
-    }, []);
-  
     const processArticleData = (articles) => {
       const publisherCount = {};
       articles.forEach(article => {
@@ -24,6 +15,22 @@ const AdminHome = () => {
       const total = articles.length;
       return Object.entries(publisherCount).map(([publisher, count]) => [publisher, (count / total) * 100]);
     };
+
+    const { data: chartData, error, isLoading } = useQuery({
+      queryKey: ['articles'],
+      queryFn: () => axiosPublic.get('/articles').then(res => processArticleData(res.data)),
+    });
+  
+    if (isLoading) {
+      return <div>Loading...</div>;
+    }
+  
+    if (error) {
+      console.error("Error fetching articles:", error);
+      return <div>Error loading articles.</div>;
+    }
+  
+    
 
     // Chart data formatted for different chart types
     const formattedChartData = [['Publisher', 'Percentage'], ...chartData];

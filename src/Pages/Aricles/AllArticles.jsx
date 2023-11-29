@@ -16,6 +16,7 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { useNavigate } from "react-router-dom";
 import ArticleCard from "./ArticleCard"; // Import ArticleCard component
 import InfiniteScroll from "react-infinite-scroll-component"; // Import InfiniteScroll
+import { useQuery } from "@tanstack/react-query";
 
 const AllArticles = () => {
   const [articles, setArticles] = useState([]);
@@ -25,7 +26,6 @@ const AllArticles = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [publishers, setPublishers] = useState([]);
 
   const tagsOptions = [
     { value: "news", label: "News" },
@@ -38,14 +38,11 @@ const AllArticles = () => {
   const navigate = useNavigate();
 
     //fetch publishers
-    useEffect(() => {
-      axiosPublic
-        .get("/publishers")
-        .then((response) => {
-          setPublishers(response.data);
-        })
-        .catch((error) => console.error("Error fetching publishers:", error));
-    }, []);
+    const { data: publishers, error, isLoading } = useQuery({
+      queryKey: ['publishers'],
+      queryFn: () => axiosPublic.get('/publishers').then(res => res.data),
+      // You can add additional options here if needed
+  });
 
   useEffect(() => {
     fetchArticles();
@@ -101,6 +98,9 @@ const AllArticles = () => {
 
   return (
     <Container>
+      {isLoading && <div>Loading publishers...</div>}
+            {error && <div>Error loading publishers.</div>}
+            {!isLoading && !error && (
       <Grid container spacing={2}>
         <Grid item xs={12} md={2}>
           {/* Add publisher and tag filters here */}
@@ -178,6 +178,7 @@ const AllArticles = () => {
           </Paper>
         </Grid>
       </Grid>
+      )}
     </Container>
   );
 };

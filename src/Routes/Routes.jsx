@@ -24,6 +24,7 @@ import TestimonialForm from "../Pages/Testimonial/TestimonialForm";
 import SubscriptionPlans from "../Subscription/SubsciptionPlans";
 import Payment from "../Pages/Payment/Payment";
 import PrivateRoute from "./PrivateRoute";
+import AdminRoute from "./AdminRoute";
 
 
   const router = createBrowserRouter([
@@ -101,9 +102,12 @@ import PrivateRoute from "./PrivateRoute";
     },
     {
       path:'dashboard',
-      element:<PrivateRoute><DashboardLayout></DashboardLayout></PrivateRoute>,
+      element:<AdminRoute><DashboardLayout></DashboardLayout></AdminRoute>,
       children:[
-        
+        {
+          path:'publisherstat',
+          element:<AdminHome></AdminHome>
+        },
         {
           path:'allusers',
           element:<AllUsers></AllUsers>
@@ -115,7 +119,11 @@ import PrivateRoute from "./PrivateRoute";
         {
           path:'allarticles',
           element:<AdminAllArticles></AdminAllArticles>
-        }
+        },
+        {
+          path: "*",
+          element: <PageNotFound></PageNotFound>,
+        },
       ]
     }
   ]);

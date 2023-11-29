@@ -5,33 +5,41 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useAxiosPublic from '../hooks/useAxiosPublic';
+import { useQuery } from '@tanstack/react-query';
 
 const PAGE_SIZE = 5; 
 
 const AllUsers = () => {
-    const [users, setUsers] = useState([]);
+ 
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalUsers, setTotalUsers] = useState(0);
-
     const axiosPublic = useAxiosPublic();
 
-    useEffect(() => {
-        axiosPublic.get('/adminusers', {
+    const { data, error, isLoading, refetch} = useQuery({
+        queryKey: ['adminusers', currentPage], 
+        queryFn: () => axiosPublic.get('/adminusers', {
             params: { page: currentPage, limit: PAGE_SIZE },
-        })
-        .then(response => {
-            setUsers(response.data.users);
-            setTotalUsers(response.data.totalCount);
-        })
-        .catch(error => console.error('Error fetching users:', error));
-    }, [currentPage]); 
+        }).then(res => res.data),
+        
+    });
+
+    const users = data?.users || [];
+    const totalUsers = data?.totalCount || 0;
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        console.error('Error fetching users:', error);
+        return <div>Error loading users.</div>;
+    }
     
 
     const handleMakeAdmin = (user) => {
         axiosPublic.patch(`/users/admin/${user._id}`)
             .then(response => {
                 if (response.data.modifiedCount > 0) {
-                    setUsers(users.map(u => u._id === user._id ? { ...u, role: 'admin' } : u));
+                    refetch();
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -58,7 +66,7 @@ const AllUsers = () => {
                 axiosPublic.delete(`/users/${user._id}`)
                     .then(response => {
                         if (response.data.deletedCount > 0) {
-                            setUsers(users.filter(u => u._id !== user._id));
+                            refetch();
                             Swal.fire('Deleted!', 'User has been deleted.', 'success');
                         }
                     })

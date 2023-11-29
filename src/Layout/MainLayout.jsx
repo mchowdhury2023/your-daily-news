@@ -8,7 +8,7 @@ const MainLayout = () => {
 
   useEffect(() => {
     const siteName = 'DailyNews';
-    const pageTitle = location.pathname === '/' 
+    const pageTitle = location.pathname === '|' 
                       ? siteName 
                       : `${siteName} | ${location.pathname.substring(1)}`;
     document.title = pageTitle;
