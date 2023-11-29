@@ -6,33 +6,29 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useAxiosPublic from '../hooks/useAxiosPublic';
 import { useQuery } from '@tanstack/react-query';
+import useAxiosSecure from '../hooks/useAxiosSecure';
 
 const PAGE_SIZE = 5; 
 
 const AllUsers = () => {
  
     const [currentPage, setCurrentPage] = useState(1);
-    const axiosPublic = useAxiosPublic();
+    const axiosSecure = useAxiosSecure();
 
-    const { data, error, isLoading, refetch} = useQuery({
+    const { data, refetch} = useQuery({
         queryKey: ['adminusers', currentPage], 
-        queryFn: () => axiosPublic.get('/adminusers', {
+        queryFn: async () => {
+          const res = await  axiosSecure.get('/adminusers', {
             params: { page: currentPage, limit: PAGE_SIZE },
-        }).then(res => res.data),
+        })
+        
+        return res.data
+    }
         
     });
 
     const users = data?.users || [];
     const totalUsers = data?.totalCount || 0;
-
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        console.error('Error fetching users:', error);
-        return <div>Error loading users.</div>;
-    }
     
 
     const handleMakeAdmin = (user) => {

@@ -102,7 +102,7 @@ import AdminRoute from "./AdminRoute";
     },
     {
       path:'dashboard',
-      element:<AdminRoute><DashboardLayout></DashboardLayout></AdminRoute>,
+      element:<DashboardLayout></DashboardLayout>,
       children:[
         {
           path:'publisherstat',
