@@ -15,6 +15,7 @@ import { AuthContext } from "../../providers/AuthProvider";
 import { updateProfile } from "firebase/auth";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import SocialLogin from "../../components/socialLogin/SocialLogin";
+import Swal from "sweetalert2";
 
 const Register = () => {
   const [registerError, setRegisterError] = useState("");
@@ -98,35 +99,41 @@ const Register = () => {
         });
       })
       .then(() => {
-        // Send user data including membership fields to your backend
-        return fetch('/users', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userData),
-        });
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Backend Response:", data);
-        updateUser({
-          ...user,
-          displayName: name,
-          photoURL: photoURL,
-        });
-        const successMsg = "User created successfully";
-        setRegSuccess(successMsg);
-        toast.success(successMsg);
-  
-        clearFormFields();
-        navigate("/");
-      })
-      .catch((error) => {
-        console.log("Error:", error);
-        setRegisterError(error.message);
-        toast.error(error.message);
+        // Send user data to backend
+        return axiosPublic.post('/users', userData);
+        
+    })
+    .then(response => {
+      console.log("Backend Response:", response.data);
+      updateUser({
+        ...user,
+        displayName: name,
+        photoURL: photoURL,
       });
+      // const successMsg = "User created successfully";
+      // setRegSuccess(successMsg);
+      // toast.success(successMsg);
+      if (response.data.insertedId) {
+
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: 'user is added Successfully.',
+          showConfirmButton: false,
+          timer: 1500
+        });
+    }
+
+      clearFormFields();
+      navigate("/");
+    })
+    .catch((error) => {
+      console.log("Error:", error);
+      const errorMessage = error.response?.data?.message || error.message;
+      setRegisterError(errorMessage);
+      toast.error(errorMessage);
+    });
+      
   };
   
 

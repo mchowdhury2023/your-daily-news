@@ -1,11 +1,12 @@
 // SubscriptionPlans.js
 
 import React, { useContext, useState } from 'react';
-import { Button, Container, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import { Button, Container, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Typography } from '@mui/material';
 import SubscriptionCard from './SubscriptionCard';
 import { AuthContext } from '../providers/AuthProvider';
 import useAxiosPublic from '../hooks/useAxiosPublic';
 import Swal from 'sweetalert2';
+import BannerSlider from './BannerSlider';
 
 const subscriptionPlans = [
   {
@@ -80,6 +81,9 @@ const subscriptionPlans = [
 
   return (
     <Container>
+       <BannerSlider></BannerSlider>
+       
+     
       <Typography variant="h5" align="center" sx={{ mt: 4, mb: 2 }}>
         Choose your Subscription from the following plan
     </Typography>
@@ -90,7 +94,11 @@ const subscriptionPlans = [
         </Grid>
       ))}
     </Grid>
+    <Typography variant="h5" align="center" sx={{ mt: 4, mb: 2 }}>
+        To Get Subscriptiopn Select Your Duration
+    </Typography>
     <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
+  
         <InputLabel>Subscription Duration</InputLabel>
         <Select
           value={selectedDuration}

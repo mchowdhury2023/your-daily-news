@@ -7,7 +7,7 @@ const MainLayout = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
     <Navbar />
-    <main style={{ flex: 1, marginTop:'24px' }}>
+    <main style={{ flex: 1, marginTop:'24px', marginBottom: '50px' }}>
       <Outlet />
     </main>
     <Footer />
