@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Pagination } from '@mui/material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useAxiosPublic from '../hooks/useAxiosPublic';
 
+const PAGE_SIZE = 5; 
+
 const AllUsers = () => {
     const [users, setUsers] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalUsers, setTotalUsers] = useState(0);
+
     const axiosPublic = useAxiosPublic();
 
     useEffect(() => {
-        // Replace with your actual API endpoint
-        axiosPublic.get('/users')
-            .then(response => setUsers(response.data))
-            .catch(error => console.error('Error fetching users:', error));
-    }, []);
+        axiosPublic.get('/adminusers', {
+            params: { page: currentPage, limit: PAGE_SIZE },
+        })
+        .then(response => {
+            setUsers(response.data.users);
+            setTotalUsers(response.data.totalCount);
+        })
+        .catch(error => console.error('Error fetching users:', error));
+    }, [currentPage]); 
+    
 
     const handleMakeAdmin = (user) => {
         axiosPublic.patch(`/users/admin/${user._id}`)
@@ -105,6 +115,14 @@ const AllUsers = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+            <Pagination
+                count={Math.ceil(totalUsers / PAGE_SIZE)}
+                page={currentPage}
+                onChange={(event, value) => setCurrentPage(value)}
+                color="primary"
+            />
+        </div>
         </Paper>
     );
 };

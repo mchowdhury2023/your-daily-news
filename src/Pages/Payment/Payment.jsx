@@ -4,7 +4,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useLocation } from "react-router-dom";
 import CheckoutForm from "./CheckoutForm";
 
-const stripePromise = loadStripe("");
+//const stripePromise = loadStripe("");
 
 const Payment = () => {
   const location = useLocation();
@@ -23,9 +23,9 @@ const Payment = () => {
         Payment{" "}
       </Typography>
       
-      <Elements stripe={stripePromise}>
+      {/* <Elements stripe={stripePromise}>
         <CheckoutForm price={price}></CheckoutForm>
-      </Elements>
+      </Elements> */}
     </Box>
   );
 };

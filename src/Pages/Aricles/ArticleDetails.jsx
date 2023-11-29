@@ -46,11 +46,11 @@ const ArticleDetails = () => {
                             <Typography variant="body2" color="text.secondary">
                                 {article.description}
                             </Typography>
-                            {/* Additional article details */}
+                            
                         </CardContent>
                     </Card>
                 </Grid>
-                {/* Add more grid items or components for publisher's name, image, etc. */}
+               
             </Grid>
         </Container>
     );

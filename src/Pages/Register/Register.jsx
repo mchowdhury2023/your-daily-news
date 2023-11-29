@@ -77,6 +77,15 @@ const Register = () => {
       clearFormFields();
       return;
     }
+
+    //add one for numeric number
+    if (!/\d/.test(password)) {
+      const errorMsg = "Password must contain at least one numeric number";
+      setRegisterError(errorMsg);
+      toast.error(errorMsg);
+      clearFormFields();
+      return;
+    }
   
     console.log("Form Data:", formData);
   

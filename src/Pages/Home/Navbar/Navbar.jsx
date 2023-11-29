@@ -45,20 +45,24 @@ function DrawerAppBar(props) {
 
   let navItems = [
     { title: 'Home', path: '/' },
-    { title: 'Add Articles', path: '/add-articles' },
-    { title: 'All Articles', path: '/all-articles' },
-    { title: 'Subscription', path: '/subscription' },
-    { title: 'Dashboard', path: '/dashboard' },
-    { title: 'My Articles', path: '/my-articles' },
-    { title: 'Premium Articles', path: '/premium-articles' },
-    
-  ];
-
-  if (user) {
-    navItems.push({ title: 'Logout', path: '/logout' });
-  } else {
-    navItems.push({ title: 'Login/Register', path: '/login' });
-  }
+    { title: 'All Articles', path: '/all-articles' }];
+  
+    if (user) {
+      // Add these items only if the user is logged in
+      navItems = [
+        ...navItems,
+        { title: 'Add Articles', path: '/add-articles' },
+        { title: 'Subscription', path: '/subscription' },
+        { title: 'Dashboard', path: '/dashboard' },
+        { title: 'My Articles', path: '/my-articles' },
+        { title: 'Premium Articles', path: '/premium-articles' },
+        { title: 'Logout', path: '/logout' }
+      ];
+    } else {
+      
+      navItems.push({ title: 'Login/Register', path: '/login' });
+    }
+  
 
   const handleNavItemClick = (item) => {
     if (item.title === 'Logout') {
@@ -143,7 +147,7 @@ function DrawerAppBar(props) {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true, 
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },

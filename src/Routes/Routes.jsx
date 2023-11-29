@@ -23,6 +23,7 @@ import AllArticles from "../Pages/Aricles/AllArticles";
 import TestimonialForm from "../Pages/Testimonial/TestimonialForm";
 import SubscriptionPlans from "../Subscription/SubsciptionPlans";
 import Payment from "../Pages/Payment/Payment";
+import PrivateRoute from "./PrivateRoute";
 
 
   const router = createBrowserRouter([
@@ -45,11 +46,11 @@ import Payment from "../Pages/Payment/Payment";
         },
         {
           path:'/add-articles',
-          element:<AddArticle></AddArticle>
+          element:<PrivateRoute><AddArticle></AddArticle></PrivateRoute>
         },
         {
           path:'/articles/:id',
-          element:<ArticleDetails></ArticleDetails>
+          element:<PrivateRoute><ArticleDetails></ArticleDetails></PrivateRoute>
         },
         {
           path:'/updatearticles/:id',
@@ -59,7 +60,7 @@ import Payment from "../Pages/Payment/Payment";
         },
         {
           path:'/my-articles',
-          element:<MyArticles></MyArticles>
+          element:<PrivateRoute><MyArticles></MyArticles></PrivateRoute>
         },
         {
           path:'all-articles',
@@ -68,15 +69,15 @@ import Payment from "../Pages/Payment/Payment";
         },
         {
           path:'/premium-articles',
-          element:<PremiumArticles></PremiumArticles>
+          element:<PrivateRoute><PremiumArticles></PremiumArticles></PrivateRoute>
         },
         {
           path:'/subscription',
-          element:<SubscriptionPlans></SubscriptionPlans>
+          element:<PrivateRoute><SubscriptionPlans></SubscriptionPlans></PrivateRoute>
         },
         {
           path:'/myprofile',
-          element:<MyProfile></MyProfile>,
+          element:<PrivateRoute><MyProfile></MyProfile></PrivateRoute>
           //loader:({params}) => fetch(`http://localhost:5000/users/${params.id}`)
         },
         {
@@ -100,12 +101,9 @@ import Payment from "../Pages/Payment/Payment";
     },
     {
       path:'dashboard',
-      element:<DashboardLayout></DashboardLayout>,
+      element:<PrivateRoute><DashboardLayout></DashboardLayout></PrivateRoute>,
       children:[
-        {
-          path:'adminhome',
-          element:<AdminHome></AdminHome>
-        },
+        
         {
           path:'allusers',
           element:<AllUsers></AllUsers>

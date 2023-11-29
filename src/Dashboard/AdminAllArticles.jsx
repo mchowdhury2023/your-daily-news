@@ -19,6 +19,9 @@ import {
 } from "@mui/material";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../hooks/useAxiosPublic";
+import { Pagination } from "@mui/material";
+
+const PAGE_SIZE = 5; 
 
 const modalStyle = {
     position: 'absolute',
@@ -40,18 +43,40 @@ const AdminAllArticles = () => {
   const [openDeclineModal, setOpenDeclineModal] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
 
   useEffect(() => {
     const getArticles = async () => {
       try {
-        const response = await axiosPublic.get("/articles");
-        setArticles(response.data);
+        const response = await axiosPublic.get("/adminarticles", {
+          params: { page: currentPage, limit: PAGE_SIZE },
+        });
+  
+        // Log the response for debugging
+        console.log("Response data:", response.data);
+  
+        // Check if the articles data is present and is an array
+        if (response.data && Array.isArray(response.data.articles)) {
+          setArticles(response.data.articles);
+          setTotalArticles(response.data.totalCount);
+        } else {
+          // Handle the case where articles is not an array or not present
+          console.error("Invalid format of articles data", response.data);
+          setArticles([]);
+          setTotalArticles(0);
+        }
       } catch (error) {
         console.error("Error fetching articles:", error);
+        // Set default state in case of an error
+        setArticles([]);
+        setTotalArticles(0);
       }
     };
+  
     getArticles();
-  }, []);
+  }, [currentPage]);
+  
 
   const updateArticle = async (articleId, updatedFields) => {
     try {
@@ -138,6 +163,10 @@ const AdminAllArticles = () => {
       return;
     }
     setOpenSnackbar(false);
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   return (
@@ -316,6 +345,14 @@ const AdminAllArticles = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+        <Pagination
+          count={Math.ceil(totalArticles / PAGE_SIZE)}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
     </div>
   );
 };
