@@ -8,6 +8,7 @@ import useAxiosPublic from '../hooks/useAxiosPublic';
 import Swal from 'sweetalert2';
 import BannerSlider from './BannerSlider';
 import { useNavigate } from 'react-router-dom';
+import { updateUserMembership } from './utils';
 
 const subscriptionPlans = [
   {
@@ -45,32 +46,7 @@ const subscriptionPlans = [
     const navigate = useNavigate();
 
   
-    const updateUserMembership = async (status, taken) => {
-      try {
-
-        const response = await axiosPublic.patch(`/updatesubscription/${user.email}`, { membershipStatus: status, membershipTaken: taken });
-      
-        // Check if the update was successful
-        if (response.data.modifiedCount > 0 ) {
-        
-          // Show success alert
-          Swal.fire({
-            position: "top-end",
-            icon: "success",
-            title: "Your subscription has been added. You are a premium member now.",
-            showConfirmButton: false,
-            timer: 1500,
-          });
-        }
-
-      }
     
-        catch(error) {
-        
-          console.error('Error updating membership:', error);
-        };
-    };
-
     const [selectedDuration, setSelectedDuration] = useState('');
 
     const handleDurationChange = (event) => {
@@ -78,7 +54,7 @@ const subscriptionPlans = [
     };
   
     const handleGetSubscription = () => {
-      updateUserMembership('premium', selectedDuration);
+      updateUserMembership(axiosPublic, user.email, 'premium', selectedDuration);
       const prices = { 60: 9.99, 7200: 12.99, 14400: 14.99 };
     const price = prices[selectedDuration];
 
