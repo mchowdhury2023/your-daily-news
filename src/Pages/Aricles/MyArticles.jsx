@@ -83,6 +83,9 @@ if (error) {
     setDeclineReason(reason);
     setOpenModal(true);
   };
+  const handleDetails = (id) => {
+    navigate(`/articles/${id}`);
+  }
 
   return (
     <div>
@@ -97,6 +100,7 @@ if (error) {
               <TableCell>Title</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Is Premium</TableCell>
+              <TableCell>Details</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -118,6 +122,12 @@ if (error) {
 
                 <TableCell>
                   {article.isPremium === "no" ? "No" : "Yes"}
+                </TableCell>
+                <TableCell>
+                  <Button onClick={() => handleDetails(article._id)}>
+                    Details
+                  </Button>
+          
                 </TableCell>
                 <TableCell>
                   <Button onClick={() => handleUpdate(article._id)}>

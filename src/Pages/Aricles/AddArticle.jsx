@@ -8,11 +8,23 @@ import { AuthContext } from '../../providers/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 
 const AddArticle = () => {
-  const { register, handleSubmit, reset, control } = useForm();
+  const defaultValues = {
+    title: '',
+    publisher: '',
+    tags: [],
+    description: '',
+    image: null
+  };
+  const { register, handleSubmit, reset, control } = useForm(defaultValues);
+
   const { user } = useContext(AuthContext);
+
   const tagsOptions = [{ value: 'news', label: 'News' }, { value: 'sports', label: 'Sports' }, { value: 'politics', label: 'politics' }, 
                        { value: 'Tech', label: 'Tech' }, { value: 'Showbiz', label: 'Showbiz' }, { value: 'Literature', label: 'Literature' }, 
-                       { value: 'Science', label: 'Science' }];
+                       { value: 'Science', label: 'Science' }, { value: 'Others', label: 'Others' }];
+
+
+
 
   const axiosPublic = useAxiosPublic();
   const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
@@ -62,7 +74,7 @@ if (error) {
           const articleResponse = await axiosPublic.post('/addArticles', articleData);
 
           if (articleResponse.data.insertedId) {
-              reset();
+              reset(defaultValues);
               Swal.fire({
                 position: "top-end",
                 icon: "success",
@@ -73,9 +85,21 @@ if (error) {
           }
       }
     } catch (error) {
-      console.error(error);
-      // TODO: Handle error
+      //console.error(error);
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: 'All fields are required. Images should be JPEG or JPG format',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
+  };
+  const customSelectStyles = {
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'lightgrey', 
+    })
   };
 
   return (
@@ -92,22 +116,30 @@ if (error) {
                 {...register('title', { required: true })}
               />
 
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Publisher</InputLabel>
-                <MuiSelect {...register('publisher', { required: true })}>
-                  {publishers.map((publisher) => (
-                    <MenuItem key={publisher._id} value={publisher.name}>
-                      {publisher.name}
-                    </MenuItem>
-                  ))}
-                </MuiSelect>
-              </FormControl>
+<FormControl fullWidth margin="normal">
+<InputLabel id="publisher-label">Publisher</InputLabel>
+        <Controller
+          name="publisher"
+          control={control}
+          defaultValue="" 
+          render={({ field }) => (
+            <MuiSelect {...field} labelId="publisher-label" label="Publisher">
+              {publishers.map((publisher) => (
+                <MenuItem key={publisher._id} value={publisher.name}>
+                  {publisher.name}
+                </MenuItem>
+              ))}
+            </MuiSelect>
+          )}
+        />
+      </FormControl>
 
               <FormControl fullWidth margin="normal">
                 <Controller
                   name="tags"
                   control={control}
-                  render={({ field }) => <Select {...field} options={tagsOptions} isMulti />}
+                  defaultValue={[]}
+                  render={({ field }) => <Select {...field} options={tagsOptions} styles={customSelectStyles} isMulti />}
                 />
               </FormControl>
 

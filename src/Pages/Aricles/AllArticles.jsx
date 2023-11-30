@@ -4,18 +4,16 @@ import {
   Container,
   Paper,
   TextField,
-  Button,
   Typography,
   Select,
   MenuItem,
   Checkbox,
   ListItemText,
 } from "@mui/material";
-import axios from "axios";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { useNavigate } from "react-router-dom";
-import ArticleCard from "./ArticleCard"; // Import ArticleCard component
-import InfiniteScroll from "react-infinite-scroll-component"; // Import InfiniteScroll
+import ArticleCard from "./ArticleCard";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { useQuery } from "@tanstack/react-query";
 
 const AllArticles = () => {
@@ -73,8 +71,6 @@ const AllArticles = () => {
     }
   };
 
-
-
   // Call fetchArticles whenever filters change
   const loadMoreArticles = () => {
     setPage((prevPage) => prevPage + 1);
@@ -99,85 +95,53 @@ const AllArticles = () => {
   return (
     <Container>
       {isLoading && <div>Loading publishers...</div>}
-            {error && <div>Error loading publishers.</div>}
-            {!isLoading && !error && (
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={2}>
-          {/* Add publisher and tag filters here */}
-          <TextField
-            label="Search Articles"
-            variant="outlined"
-            fullWidth
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Select
-  value={selectedPublisher}
-  onChange={(e) => setSelectedPublisher(e.target.value)}
-  fullWidth
-  displayEmpty
->
-  <MenuItem value="">All Publishers</MenuItem>
-  {publishers.map((publisher) => (
-    <MenuItem key={publisher._id} value={publisher._id}>
-      {publisher.name}
-    </MenuItem>
-  ))}
-</Select>
+      {error && <div>Error loading publishers.</div>}
+      {!isLoading && !error && (
+        <Grid container spacing={2}>
+          {/* Search and Filters Column */}
+          <Grid item xs={12} md={2}>
+            <Typography variant="h6" gutterBottom>
+              Search & Filters
+            </Typography>
+            {/* ... Search and Filters components ... */}
+          </Grid>
 
+          {/* Articles Columns (3 columns wide) */}
+          <Grid item xs={12} md={8}>
+            <InfiniteScroll
+              dataLength={articles.length}
+              next={loadMoreArticles}
+              hasMore={hasMore}
+              loader={<h4>Loading...</h4>}
+              endMessage={
+                <p style={{ textAlign: "center" }}>
+                  <b>You have seen all articles</b>
+                </p>
+              }
+            >
+              <Grid container spacing={2}>
+                {articles.map((article) => (
+                  <Grid item xs={12} md={4}>
+                    <ArticleCard
+                      key={article._id}
+                      article={article}
+                      onVisit={() => handleArticleVisit(article._id)}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </InfiniteScroll>
+          </Grid>
 
-          <Select
-            multiple
-            value={selectedTags}
-            onChange={(e) => setSelectedTags(e.target.value)}
-            renderValue={(selected) =>
-              selected
-                .map(
-                  (tag) =>
-                    tagsOptions.find((option) => option.value === tag).label
-                )
-                .join(", ")
-            }
-            fullWidth
-          >
-            {tagsOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                <Checkbox checked={selectedTags.indexOf(option.value) > -1} />
-                <ListItemText primary={option.label} />
-              </MenuItem>
-            ))}
-          </Select>
+          {/* Additional Info Column */}
+          <Grid item xs={12} md={2}>
+            <Paper style={{ padding: "10px", marginBottom: "10px" }}>
+              <Typography variant="h6">Today's Date</Typography>
+              <Typography>{today}</Typography>
+            </Paper>
+            {/* You can add more components here if needed */}
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={8}>
-          <InfiniteScroll
-            dataLength={articles.length}
-            next={loadMoreArticles}
-            hasMore={hasMore}
-            loader={<h4>Loading...</h4>}
-            endMessage={
-              <p style={{ textAlign: "center" }}>
-                <b>You have seen all articles</b>
-              </p>
-            }
-          >
-            <Grid container spacing={2}>
-              {articles.map((article) => (
-                <ArticleCard
-                  key={article._id}
-                  article={article}
-                  onVisit={() => handleArticleVisit(article._id)}
-                />
-              ))}
-            </Grid>
-          </InfiniteScroll>
-        </Grid>
-        <Grid item xs={12} md={2}>
-          <Paper style={{ padding: "10px" }}>
-            <Typography variant="h6">Today's Date</Typography>
-            <Typography>{today}</Typography>
-          </Paper>
-        </Grid>
-      </Grid>
       )}
     </Container>
   );
