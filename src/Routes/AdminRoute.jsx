@@ -6,7 +6,7 @@ import { AuthContext } from "../providers/AuthProvider";
 
 
 const AdminRoute = ({ children }) => {
-    const [user, loading] = useContext(AuthContext); 
+    const {user, loading} = useContext(AuthContext); 
     const [isAdmin, isAdminLoading] = useAdmin();
     const location = useLocation();
 

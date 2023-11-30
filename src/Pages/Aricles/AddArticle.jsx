@@ -10,7 +10,9 @@ import { useQuery } from '@tanstack/react-query';
 const AddArticle = () => {
   const { register, handleSubmit, reset, control } = useForm();
   const { user } = useContext(AuthContext);
-  const tagsOptions = [{ value: 'news', label: 'News' }, { value: 'sports', label: 'Sports' }, { value: 'politics', label: 'politics' }, { value: 'Tech', label: 'Tech' }];
+  const tagsOptions = [{ value: 'news', label: 'News' }, { value: 'sports', label: 'Sports' }, { value: 'politics', label: 'politics' }, 
+                       { value: 'Tech', label: 'Tech' }, { value: 'Showbiz', label: 'Showbiz' }, { value: 'Literature', label: 'Literature' }, 
+                       { value: 'Science', label: 'Science' }];
 
   const axiosPublic = useAxiosPublic();
   const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;

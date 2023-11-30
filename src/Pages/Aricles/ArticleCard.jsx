@@ -21,7 +21,7 @@ const ArticleCard = ({ article, onVisit }) => {
     const cardStyle = {
         maxWidth: '345px',
         margin: '10px', // Added margin for gap between cards
-        backgroundColor: article.isPremium === 'Yes' ? '#FFD700' : 'white'
+        backgroundColor: article.isPremium === 'Yes' ? '#ADD8E6' : 'white'
     };
 
     return (

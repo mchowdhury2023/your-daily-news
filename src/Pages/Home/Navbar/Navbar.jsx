@@ -21,24 +21,30 @@ import { AuthContext } from '../../../providers/AuthProvider';
 import logo from '../../../assets/logo1.png';
 import useAuth from '../../../hooks/useAuth';
 import useAdmin from '../../../hooks/useAdmin';
+import usePremium from '../../../hooks/usePremium';
 
 const drawerWidth = 240;
 
 function DrawerAppBar(props) {
   const { window } = props;
-  const { user, logOut } = useContext(AuthContext);
+  const { user, logOut, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
     const [isAdmin] = useAdmin();
+    const { isPremiumMember, isPremiumLoading } = usePremium();
 
-  //console.log(user);
+    // Handle loading state if needed
+    if (isPremiumLoading) {
+        return null;
+    }
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
 
   const handleLogout = async () => {
+    setUser(null);
     try {
       await logOut();
       navigate("/login");
@@ -59,9 +65,13 @@ function DrawerAppBar(props) {
             { title: 'Add Articles', path: '/add-articles' },
             { title: 'Subscription', path: '/subscription' },
             { title: 'My Articles', path: '/my-articles' },
-            { title: 'Premium Articles', path: '/premium-articles' },
+            
             { title: 'Logout', path: '/logout' }
         ];
+
+        if (isPremiumMember){
+          navItems.push({ title: 'Premium Articles', path: '/premium-articles' })
+        }
 
         if (isAdmin) {
             navItems.push({ title: 'Dashboard', path: '/dashboard' });

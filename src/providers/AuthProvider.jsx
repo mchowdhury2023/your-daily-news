@@ -5,6 +5,7 @@ import useAxiosPublic from "../hooks/useAxiosPublic";
 
 
 export const AuthContext = createContext();
+
 const auth = getAuth(app);
 
 const AuthProvider = ({ children }) => {
@@ -39,7 +40,7 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, currentUser => {
-            setUser(currentUser);
+         
             console.log('current user', currentUser);
 
             if (currentUser) {
@@ -49,6 +50,7 @@ const AuthProvider = ({ children }) => {
                     .then(res => {
                         if (res.data.token) {
                             localStorage.setItem('access-token', res.data.token);
+                            setUser(currentUser);
                             setLoading(false);
                         }
                     })
@@ -63,7 +65,7 @@ const AuthProvider = ({ children }) => {
         return () => {
             return unsubscribe();
         }
-    }, [])
+    }, [axiosPublic])
 
     const authInfo = {
         user,
@@ -72,7 +74,8 @@ const AuthProvider = ({ children }) => {
         updateUser,
         signIn, 
         googleSignIn,
-        logOut
+        logOut,
+        setUser
     }
 
     return (

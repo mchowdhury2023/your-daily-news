@@ -102,7 +102,7 @@ import AdminRoute from "./AdminRoute";
     },
     {
       path:'dashboard',
-      element:<DashboardLayout></DashboardLayout>,
+      element:<AdminRoute><DashboardLayout></DashboardLayout></AdminRoute>,
       children:[
         {
           path:'publisherstat',
@@ -110,19 +110,15 @@ import AdminRoute from "./AdminRoute";
         },
         {
           path:'allusers',
-          element:<AllUsers></AllUsers>
+          element:<AdminRoute><AllUsers></AllUsers></AdminRoute>
         },
         {
           path:'addpublisher',
-          element:<AddPublisher></AddPublisher>
+          element:<AdminRoute><AddPublisher></AddPublisher></AdminRoute>
         },
         {
           path:'allarticles',
-          element:<AdminAllArticles></AdminAllArticles>
-        },
-        {
-          path: "*",
-          element: <PageNotFound></PageNotFound>,
+          element:<AdminRoute><AdminAllArticles></AdminAllArticles></AdminRoute>
         },
       ]
     }

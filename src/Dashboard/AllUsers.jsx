@@ -4,7 +4,6 @@ import Swal from 'sweetalert2';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Pagination } from '@mui/material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DeleteIcon from '@mui/icons-material/Delete';
-import useAxiosPublic from '../hooks/useAxiosPublic';
 import { useQuery } from '@tanstack/react-query';
 import useAxiosSecure from '../hooks/useAxiosSecure';
 
@@ -32,7 +31,7 @@ const AllUsers = () => {
     
 
     const handleMakeAdmin = (user) => {
-        axiosPublic.patch(`/users/admin/${user._id}`)
+        axiosSecure.patch(`/users/admin/${user._id}`)
             .then(response => {
                 if (response.data.modifiedCount > 0) {
                     refetch();
@@ -59,7 +58,7 @@ const AllUsers = () => {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                axiosPublic.delete(`/users/${user._id}`)
+                axiosSecure.delete(`/users/${user._id}`)
                     .then(response => {
                         if (response.data.deletedCount > 0) {
                             refetch();

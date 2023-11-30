@@ -3,10 +3,12 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, Grid, Paper, Container } from '@mui/material';
 import Swal from 'sweetalert2';
 import useAxiosPublic from '../hooks/useAxiosPublic';
+import useAxiosSecure from '../hooks/useAxiosSecure';
 
 const AddPublisher = () => {
   const { register, handleSubmit, reset } = useForm();
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
   const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
   const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -28,7 +30,7 @@ const AddPublisher = () => {
               image: imageResponse.data.data.display_url
           };
 
-          const publisherResponse = await axiosPublic.post('/addpublisher', publisherData);
+          const publisherResponse = await axiosSecure.post('/addpublisher', publisherData);
 
           if (publisherResponse.data.insertedId) {
               reset();

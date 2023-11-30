@@ -4,6 +4,7 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import ArticleCard from "./ArticleCard";
 
 const PremiumArticles = () => {
   const axiosPublic = useAxiosPublic();
@@ -39,28 +40,10 @@ if (error) {
       <Grid container spacing={3}>
         {articles.map((article) => (
           <Grid item xs={12} sm={6} md={4} key={article._id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="140"
-                image={article.image}
-                alt={article.title}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {article.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {article.description}
-                </Typography>
-                <Typography variant="body1" color="text.primary">
-                  Publisher: {article.publisher}
-                </Typography>
-                <Button size="small" color="primary" onClick={() => handleDetails(article._id)}>
-                  Details
-                </Button>
-              </CardContent>
-            </Card>
+            <ArticleCard 
+              article={article} 
+              onVisit={() => handleDetails(article._id)}
+            />
           </Grid>
         ))}
       </Grid>
