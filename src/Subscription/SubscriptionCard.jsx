@@ -7,17 +7,6 @@ const SubscriptionCard = ({ plan, index}) => {
 
   const borderColor = borderColors[index % borderColors.length]; 
 
-  // const handleSubscription = () => {
-  //   // Example durations for different plans
-  //   const durations = {
-  //     'Premium Individual': 60,
-  //     'Premium Duo': 300,
-  //     'Premium Family': 480
-  //   };
-
-  //   const selectedDuration = durations[plan.name];
-  //   updateUserMembership( 'premium', selectedDuration);
-  // };
 
   return (
     <Card raised sx={{ 

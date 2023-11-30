@@ -39,12 +39,12 @@ const AllArticles = () => {
     const { data: publishers, error, isLoading } = useQuery({
       queryKey: ['publishers'],
       queryFn: () => axiosPublic.get('/publishers').then(res => res.data),
-      // You can add additional options here if needed
+     
   });
 
   useEffect(() => {
     fetchArticles();
-  }, [searchTerm]); // Add searchTerm to dependency array
+  }, [searchTerm]); 
 
   const fetchArticles = async (reset = false) => {
     try {
@@ -59,11 +59,11 @@ const AllArticles = () => {
         },
       });
       if (reset) {
-        setArticles(response.data); // Reset the articles list when filters are applied
-        setPage(1); // Reset to the second page (since first page data is already loaded)
+        setArticles(response.data); 
+        setPage(1); 
       } else {
-        setArticles(prevArticles => [...prevArticles, ...response.data]); // Append new articles
-        setPage(prevPage => prevPage + 1); // Increment page count
+        setArticles(prevArticles => [...prevArticles, ...response.data]); 
+        setPage(prevPage => prevPage + 1); 
       }
       setHasMore(response.data.length === pageSize);
     } catch (error) {
@@ -139,7 +139,7 @@ const AllArticles = () => {
               <Typography variant="h6">Today's Date</Typography>
               <Typography>{today}</Typography>
             </Paper>
-            {/* You can add more components here if needed */}
+           
           </Grid>
         </Grid>
       )}

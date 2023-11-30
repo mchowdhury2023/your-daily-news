@@ -19,6 +19,8 @@ import {
 } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Testimonials from '../Testimonial/Testimonials'
+import HomepageArticles from '../Aricles/HomepageArticles'
+import HomePageSubscription from '../../Subscription/HomePageSubscription'
 
 const Home = () => {
   return (
@@ -37,13 +39,14 @@ const Home = () => {
 
       </div>
       <div>
-      <h2 style={{textAlign:'center'}}>All Articles</h2>
-      <AllArticles></AllArticles>
+      <h2 style={{textAlign:'center'}}>Select Articles By Category</h2>
+      {/* <AllArticles></AllArticles> */}
+      <HomepageArticles></HomepageArticles>
 
       </div>
       <div>
-        <h2 style={{textAlign:'center'}}> Choose Your Subscription Plan</h2>
-        <SubscriptionPlans></SubscriptionPlans>
+        {/* <SubscriptionPlans></SubscriptionPlans> */}
+        <HomePageSubscription></HomePageSubscription>
       </div>
       <div>
       <Box sx={{ py: 5, px: { xs: 2, sm: 3, md: 4 } }}>

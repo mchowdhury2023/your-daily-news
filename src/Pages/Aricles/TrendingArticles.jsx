@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+
 import Slider from 'react-slick';
 import { Card, CardMedia, CardContent, Typography, Container } from '@mui/material';
-import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import useAxiosPublic from '../../hooks/useAxiosPublic';
+import { useQuery } from '@tanstack/react-query';
 
 const TrendingArticles = () => {
-    const [articles, setArticles] = useState([]);
     const axiosPublic = useAxiosPublic();
+    const { data: articles, error, isLoading } = useQuery({
+        queryKey: ['trendingArticles'], 
+        queryFn: () => axiosPublic.get('/trending-articles').then(res => res.data),
+    });
 
-    useEffect(() => {
-        const fetchTrendingArticles = async () => {
-            try {
-                const response = await axiosPublic.get('/trending-articles');
-                setArticles(response.data);
-            } catch (error) {
-                console.error("Error fetching trending articles:", error);
-            }
-        };
+    if (isLoading) {
+        return <div>Loading articles...</div>;
+    }
 
-        fetchTrendingArticles();
-    }, []);
+    if (error) {
+        console.error('Error fetching articles:', error);
+        return <div>Error loading articles.</div>;
+    }
 
     const settings = {
         dots: true,
@@ -50,23 +50,52 @@ const TrendingArticles = () => {
         ]
     };
 
+    // Inline styles
+    const styles = {
+        card: {
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+        },
+        cardImageContainer: {
+            height: '50%', // Image container takes up 50% of the card's height
+            overflow: 'hidden', // Hides the overflowed part of the image
+        },
+        cardImage: {
+            width: '100%', // Image takes full width of the container
+            height: 'auto',
+            objectFit: 'cover', // Covers the height of the container
+        },
+        cardContent: {
+            height: '50%', // Description takes up the remaining 50%
+        },
+        description: {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            webkitLineClamp: 3,
+            webkitBoxOrient: 'vertical',
+        },
+    };
+
     return (
         <Container>
             <Slider {...settings}>
                 {articles.map(article => (
                     <div key={article._id}>
-                        <Card>
-                            <CardMedia
-                                component="img"
-                                height="140"
-                                image={article.image}
-                                alt={article.title}
-                            />
-                            <CardContent>
+                        <Card style={styles.card}>
+                            <div style={styles.cardImageContainer}>
+                                <img 
+                                    src={article.image}
+                                    alt={article.title}
+                                    style={styles.cardImage}
+                                />
+                            </div>
+                            <CardContent style={styles.cardContent}>
                                 <Typography gutterBottom variant="h5" component="div">
                                     {article.title}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" color="text.secondary" style={styles.description}>
                                     {article.description}
                                 </Typography>
                             </CardContent>
