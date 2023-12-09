@@ -1,6 +1,8 @@
 import Swal from 'sweetalert2';
 
-export const updateUserMembership = async (axiosPublic,email, status, taken) => {
+export const updateUserMembership = async (axiosPublic,email, status, taken, setUserState = () => {}) => {
+
+    console.log("Type of setUserState:", typeof setUserState);
     try {
       
       const subscriptionStartTime = Date.now();
@@ -14,7 +16,7 @@ export const updateUserMembership = async (axiosPublic,email, status, taken) => 
     
       // Check if the update was successful
       if (response.data.modifiedCount > 0 ) {
-      
+        setUserState({ ...response.data.user, membershipStatus: status });
         // Show success alert
         Swal.fire({
           position: "top-end",

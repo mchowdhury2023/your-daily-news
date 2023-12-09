@@ -7,7 +7,6 @@ import {
   Typography,
   Select,
   MenuItem,
-  Checkbox,
   ListItemText,
 } from "@mui/material";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
@@ -18,77 +17,48 @@ import { useQuery } from "@tanstack/react-query";
 
 const AllArticles = () => {
   const [articles, setArticles] = useState([]);
-  const [hasMore, setHasMore] = useState(true); // State for infinite scrolling
+  const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPublisher, setSelectedPublisher] = useState("");
-  const [selectedTags, setSelectedTags] = useState([]);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-
-  const tagsOptions = [
-    { value: "news", label: "News" },
-    { value: "sports", label: "Sports" },
-    { value: "politics", label: "Politics" },
-    { value: "Tech", label: "Tech" },
-  ];
 
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
 
-    //fetch publishers
-    const { data: publishers, error, isLoading } = useQuery({
-      queryKey: ['publishers'],
-      queryFn: () => axiosPublic.get('/publishers').then(res => res.data),
-     
+  const { data: publishers, error, isLoading } = useQuery({
+    queryKey: ['publishers'],
+    queryFn: () => axiosPublic.get('/publishers').then(res => res.data),
   });
 
   useEffect(() => {
-    fetchArticles();
-  }, [searchTerm]); 
+    fetchFilteredArticles();
+  }, [searchTerm, selectedPublisher, page]);
 
-  const fetchArticles = async (reset = false) => {
+  const fetchFilteredArticles = async () => {
     try {
-      const response = await axiosPublic.get("/searcharticles", {
+      const response = await axiosPublic.get("/filteredarticlesbypublisher", {
         params: {
-          status: "approved",
           search: searchTerm,
           publisher: selectedPublisher,
-          tags: selectedTags.join(","),
-          page: reset ? 0 : page,
+          page,
           pageSize,
         },
       });
-      if (reset) {
-        setArticles(response.data); 
-        setPage(1); 
-      } else {
-        setArticles(prevArticles => [...prevArticles, ...response.data]); 
-        setPage(prevPage => prevPage + 1); 
-      }
+      setArticles(response.data);
       setHasMore(response.data.length === pageSize);
     } catch (error) {
-      console.error("Error fetching articles:", error);
+      console.error("Error fetching filtered articles:", error);
     }
   };
 
-  // Call fetchArticles whenever filters change
   const loadMoreArticles = () => {
     setPage((prevPage) => prevPage + 1);
   };
 
-  useEffect(() => {
-    fetchArticles(true);
-  }, [page, searchTerm, selectedPublisher, selectedTags]);
-
   const today = new Date().toLocaleDateString();
 
-  const handleArticleVisit = async (articleId) => {
-    try {
-      await axiosPublic.patch(`/article/${articleId}/visit`);
-    } catch (error) {
-      console.error("Error incrementing article visit:", error);
-    }
-
+  const handleArticleVisit = (articleId) => {
     navigate(`/articles/${articleId}`);
   };
 
@@ -103,10 +73,37 @@ const AllArticles = () => {
             <Typography variant="h6" gutterBottom>
               Search & Filters
             </Typography>
-            {/* ... Search and Filters components ... */}
+            
+            {/* Publisher Filter */}
+            <Select
+              value={selectedPublisher}
+              onChange={(e) => setSelectedPublisher(e.target.value)}
+              displayEmpty
+              fullWidth
+              style={{ marginBottom: '10px' }}
+            >
+              <MenuItem value="">
+                <em>All Publishers</em>
+              </MenuItem>
+              {publishers.map((publisher) => (
+                <MenuItem key={publisher._id} value={publisher.name}>
+                  {publisher.name}
+                </MenuItem>
+              ))}
+            </Select>
+
+            {/* Search by Title */}
+            <TextField
+              fullWidth
+              label="Search by Title"
+              variant="outlined"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ marginBottom: '10px' }}
+            />
           </Grid>
 
-          {/* Articles Columns (3 columns wide) */}
+          {/* Articles Columns */}
           <Grid item xs={12} md={8}>
             <InfiniteScroll
               dataLength={articles.length}
@@ -121,9 +118,8 @@ const AllArticles = () => {
             >
               <Grid container spacing={2}>
                 {articles.map((article) => (
-                  <Grid item xs={12} md={4}>
+                  <Grid item xs={12} md={4} key={article._id}>
                     <ArticleCard
-                      key={article._id}
                       article={article}
                       onVisit={() => handleArticleVisit(article._id)}
                     />
@@ -139,7 +135,6 @@ const AllArticles = () => {
               <Typography variant="h6">Today's Date</Typography>
               <Typography>{today}</Typography>
             </Paper>
-           
           </Grid>
         </Grid>
       )}

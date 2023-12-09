@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import AllArticles from '../Aricles/AllArticles'
 import TrendingArticles from '../Aricles/TrendingArticles'
 import SubscriptionPlans from '../../Subscription/SubsciptionPlans'
@@ -21,8 +21,28 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Testimonials from '../Testimonial/Testimonials'
 import HomepageArticles from '../Aricles/HomepageArticles'
 import HomePageSubscription from '../../Subscription/HomePageSubscription'
+import { AuthContext } from '../../providers/AuthProvider'
+import SubscriptionModal from './SubscriptionModal'
 
 const Home = () => {
+  const [showModal, setShowModal] = useState(false);
+  const { user } = useContext(AuthContext); 
+
+  useEffect(() => {
+    let timer;
+    if (user) {
+      timer = setTimeout(() => {
+        setShowModal(true);
+      }, 10000); 
+    }
+
+    return () => clearTimeout(timer); 
+  }, [user]); 
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <div >
       <div style={{textAlign:'center'}}>
@@ -39,7 +59,7 @@ const Home = () => {
 
       </div>
       <div>
-      <h2 style={{textAlign:'center'}}>Select Articles By Category</h2>
+      <h2 style={{textAlign:'center'}}>Select Articles By Tag Name</h2>
       {/* <AllArticles></AllArticles> */}
       <HomepageArticles></HomepageArticles>
 
@@ -134,6 +154,7 @@ const Home = () => {
       </Box>
       </div>
       <Testimonials></Testimonials>
+      <SubscriptionModal open={showModal} handleClose={handleCloseModal} />
        
     </div>
   )

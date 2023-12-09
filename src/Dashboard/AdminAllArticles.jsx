@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Table,
   TableBody,
@@ -20,20 +20,21 @@ import {
 import Swal from "sweetalert2";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { Pagination } from "@mui/material";
+import { AuthContext } from "../providers/AuthProvider";
 
-const PAGE_SIZE = 5; 
+const PAGE_SIZE = 5;
 
 const modalStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-  };
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 const AdminAllArticles = () => {
   const axiosPublic = useAxiosPublic();
@@ -46,16 +47,18 @@ const AdminAllArticles = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalArticles, setTotalArticles] = useState(0);
 
+  const { user } = useContext(AuthContext);
+
   useEffect(() => {
     const getArticles = async () => {
       try {
         const response = await axiosPublic.get("/adminarticles", {
           params: { page: currentPage, limit: PAGE_SIZE },
         });
-  
+
         // Log the response for debugging
         console.log("Response data:", response.data);
-  
+
         // Check if the articles data is present and is an array
         if (response.data && Array.isArray(response.data.articles)) {
           setArticles(response.data.articles);
@@ -73,10 +76,9 @@ const AdminAllArticles = () => {
         setTotalArticles(0);
       }
     };
-  
+
     getArticles();
   }, [currentPage]);
-  
 
   const updateArticle = async (articleId, updatedFields) => {
     try {
@@ -183,6 +185,15 @@ const AdminAllArticles = () => {
                   textAlign: "center",
                 }}
               >
+                Author Photo
+              </TableCell>
+              <TableCell
+                style={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
                 Title
               </TableCell>
               <TableCell
@@ -239,6 +250,17 @@ const AdminAllArticles = () => {
           <TableBody>
             {articles.map((article) => (
               <TableRow key={article._id}>
+                <TableCell style={{ borderRight: "1px solid #eee" }}>
+                  <img
+                    src={article.authorPhotoURL}
+                    alt="Author"
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </TableCell>
                 <TableCell style={{ borderRight: "1px solid #eee" }}>
                   {article.title}
                 </TableCell>

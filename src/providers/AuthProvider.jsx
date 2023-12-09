@@ -59,13 +59,20 @@ const AuthProvider = ({ children }) => {
           const newAccumulatedDuration = accumulatedLoginDuration + (currentTime - lastLoginTime);
       
           const durationInMilliseconds = userData.membershipTaken * 60 * 1000;
+
+          if (setUser) {
+            await updateUserMembership(axiosPublic, currentUser.email, status, taken, setUser);
+         } else {
+            console.error("setUser is not a function");
+         }
+         
       
           if (newAccumulatedDuration > durationInMilliseconds) {
             // Update the user's subscription status to null if the time has elapsed
-            await updateUserMembership(axiosPublic, currentUser.email, null, null);
+            await updateUserMembership(axiosPublic, currentUser.email, null, null, setUser);
           } else {
             // Update only the accumulated login duration
-            await updateUserMembership(axiosPublic, currentUser.email, userData.membershipStatus, userData.membershipTaken);
+            await updateUserMembership(axiosPublic, currentUser.email, userData.membershipStatus, userData.membershipTaken, setUser );
           }
         }
       };

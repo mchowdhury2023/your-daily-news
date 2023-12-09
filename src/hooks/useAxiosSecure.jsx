@@ -5,10 +5,9 @@ import { useNavigate } from "react-router-dom";
 
 const axiosSecure = axios.create({
     //for local
-    baseURL: 'http://localhost:5000'
-
+    //baseURL: 'http://localhost:5000'
      //for production
-    //baseURL: 'https://your-daily-news-server.vercel.app'
+    baseURL: 'https://your-daily-news-server.vercel.app'
       
 })
 const useAxiosSecure = () => {
