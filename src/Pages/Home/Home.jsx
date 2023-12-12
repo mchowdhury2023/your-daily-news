@@ -23,6 +23,7 @@ import HomepageArticles from '../Aricles/HomepageArticles'
 import HomePageSubscription from '../../Subscription/HomePageSubscription'
 import { AuthContext } from '../../providers/AuthProvider'
 import SubscriptionModal from './SubscriptionModal'
+import WeatherForm from '../Weather/WeatherForm'
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -67,6 +68,9 @@ const Home = () => {
       <div>
         {/* <SubscriptionPlans></SubscriptionPlans> */}
         <HomePageSubscription></HomePageSubscription>
+      </div>
+      <div>
+        <WeatherForm></WeatherForm>
       </div>
       <div>
       <Box sx={{ py: 5, px: { xs: 2, sm: 3, md: 4 } }}>
